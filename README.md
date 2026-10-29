@@ -12,14 +12,10 @@ Byggd med Laravel 13, Livewire 4 och MariaDB. Körs med Docker Compose.
    cp .env.example .env
    ```
 
-2. Bygg avbildningen och generera en applikationsnyckel. Klistra in nyckeln som `APP_KEY=` i `.env`:
+2. Bygg avbildningen:
 
    ```bash
    docker compose build
-   ```
-
-   ```bash
-   docker compose run --rm --no-deps --entrypoint php app artisan key:generate --show
    ```
 
 3. Starta allt (app, databas, kö-arbetare och schemaläggare). Migreringarna körs automatiskt, och huvudadmin skapas från `ADMIN_EMAIL`:
@@ -29,6 +25,8 @@ Byggd med Laravel 13, Livewire 4 och MariaDB. Körs med Docker Compose.
    ```
 
 4. Gå till http://localhost:8080 och logga in med din e-postadress.
+
+Applikationsnyckeln (`APP_KEY`) skapas automatiskt vid första starten och sparas i lagringsvolymen (`storage/app/private/app-key`). Ta med volymen i dina backuper: utan nyckeln slutar deltagarnas personliga länkar att fungera. Vill du hellre hantera nyckeln själv sätter du `APP_KEY` i `.env`, och då används den i stället.
 
 Huvudadmin skapas bara om det inte redan finns någon, så det gör inget att `ADMIN_EMAIL` ligger kvar i `.env`. Vill du göra ett befintligt konto till huvudadmin senare kör du:
 
