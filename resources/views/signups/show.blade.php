@@ -28,7 +28,7 @@
             <a href="{{ route('events.public', $event) }}" class="hover:underline">{{ $event->title }}</a>
         </h1>
         <p class="mt-1 text-sm text-stone-600">
-            {{ $event->starts_at->isoFormat('LLLL') }}@if ($event->location) · {{ $event->location }}@endif
+            {{ collect([$event->starts_at?->isoFormat('LLLL'), $event->location])->filter()->implode(' · ') }}
         </p>
 
         <div class="mt-6 rounded-lg border border-stone-200 bg-white p-5">

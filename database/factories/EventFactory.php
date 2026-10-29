@@ -32,6 +32,18 @@ class EventFactory extends Factory
     }
 
     /**
+     * Indicate that the event has no start, only a last day to sign up.
+     */
+    public function withoutStart(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'starts_at' => null,
+            'ends_at' => null,
+            'signup_deadline' => now()->addWeeks(2),
+        ]);
+    }
+
+    /**
      * Indicate that the event has been published.
      */
     public function published(): static

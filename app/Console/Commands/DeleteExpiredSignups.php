@@ -19,7 +19,7 @@ class DeleteExpiredSignups extends Command
         $deleted = 0;
 
         Event::query()
-            ->whereRaw('coalesce(ends_at, starts_at) < ?', [now()])
+            ->whereRaw('coalesce(ends_at, starts_at, signup_deadline) < ?', [now()])
             ->whereHas('signups')
             ->lazyById()
             ->each(function (Event $event) use (&$deleted): void {

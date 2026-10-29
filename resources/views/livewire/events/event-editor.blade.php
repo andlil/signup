@@ -49,11 +49,14 @@
         </section>
 
         <section class="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 sm:grid-cols-2">
-            <h2 class="font-semibold sm:col-span-2">{{ __('When and where') }}</h2>
+            <div class="sm:col-span-2">
+                <h2 class="font-semibold">{{ __('When and where') }}</h2>
+                <p class="mt-1 text-sm text-stone-600">{{ __('Enter when the event starts, a last day to sign up, or both. For a poll without a fixed date, a last day to sign up is enough.') }}</p>
+            </div>
 
             <div>
                 <x-form.label for="startsAt">{{ __('Starts') }}</x-form.label>
-                <x-form.input id="startsAt" type="datetime-local" wire:model="startsAt" required />
+                <x-form.input id="startsAt" type="datetime-local" wire:model="startsAt" />
                 <x-form.error for="startsAt" />
             </div>
 
@@ -74,7 +77,7 @@
             <h2 class="font-semibold sm:col-span-2">{{ __('Signups') }}</h2>
 
             <div>
-                <x-form.label for="signupDeadline">{{ __('Last day to sign up') }} <span class="font-normal text-stone-500">({{ __('optional') }})</span></x-form.label>
+                <x-form.label for="signupDeadline">{{ __('Last day to sign up') }}</x-form.label>
                 <x-form.input id="signupDeadline" type="datetime-local" wire:model="signupDeadline" />
                 <p class="mt-1 text-sm text-stone-500">{{ __('The form closes automatically after this.') }}</p>
                 <x-form.error for="signupDeadline" />

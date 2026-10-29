@@ -47,6 +47,46 @@ class EventEditorTest extends TestCase
         $this->assertMatchesRegularExpression('/^[a-z0-9]{12}$/', $event->slug);
     }
 
+    public function test_the_event_needs_a_start_or_a_last_day_to_sign_up(): void
+    {
+        $message = __('Enter when the event starts, a last day to sign up, or both.');
+
+        Livewire::actingAs(User::factory()->create())
+            ->test(EventEditor::class)
+            ->set('title', 'Utan datum')
+            ->call('save')
+            ->assertHasErrors(['startsAt' => [$message], 'signupDeadline' => [$message]]);
+
+        $this->assertDatabaseEmpty('events');
+    }
+
+    public function test_an_event_can_have_only_a_last_day_to_sign_up(): void
+    {
+        $organizer = User::factory()->create();
+
+        Livewire::actingAs($organizer)
+            ->test(EventEditor::class)
+            ->set('title', 'Sommarsemester')
+            ->set('signupDeadline', '2027-03-31T23:59')
+            ->call('save')
+            ->assertHasNoErrors();
+
+        $event = Event::query()->sole();
+        $this->assertNull($event->starts_at);
+        $this->assertSame('2027-03-31 23:59', $event->signup_deadline->format('Y-m-d H:i'));
+    }
+
+    public function test_an_end_needs_a_start(): void
+    {
+        Livewire::actingAs(User::factory()->create())
+            ->test(EventEditor::class)
+            ->set('title', 'Fest')
+            ->set('endsAt', '2027-02-20T10:00')
+            ->set('signupDeadline', '2027-02-01T10:00')
+            ->call('save')
+            ->assertHasErrors(['startsAt' => [__('An event with an end also needs a start.')]]);
+    }
+
     public function test_the_event_needs_a_title_and_a_start_and_cannot_end_before_it_starts(): void
     {
         Livewire::actingAs(User::factory()->create())

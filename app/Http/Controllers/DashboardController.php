@@ -22,7 +22,7 @@ class DashboardController extends Controller
                 ->with('user')
                 ->withCount(['questions', 'signups as waitlisted_count' => fn ($query) => $query->where('status', SignupStatus::Waitlisted)])
                 ->withSum(['signups as confirmed_places' => fn ($query) => $query->where('status', SignupStatus::Confirmed)], 'places')
-                ->orderByDesc('starts_at')
+                ->orderByRaw('coalesce(starts_at, signup_deadline) desc')
                 ->get(),
             'showOrganizer' => $user->isAdmin(),
         ]);

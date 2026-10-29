@@ -32,7 +32,8 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
 
 ## Event
 
-- Titel, beskrivning (Markdown), omslagsbild samt start- och sluttid och plats
+- Titel, beskrivning (Markdown), omslagsbild, plats, starttid och sluttid
+- Eventet måste ha en starttid, en sista anmälningsdag eller båda. En sluttid kräver en starttid. Utan starttid (t.ex. en förfrågan om semesterdatum) räknas avbokning och gallring från sista anmälningsdagen.
 - Publik länk med en slumpad slug: `/e/{slug}`
 - Status: utkast → publicerat → stängt
 - Sista anmälningsdag (valfri). Efter den är formuläret stängt. Anmälan stängs alltid när eventet börjar.
@@ -60,7 +61,7 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
 - Deltagaren fyller i formuläret och kryssar i samtyckesrutan (obligatoriskt).
 - Om det finns plats bekräftas anmälan, annars hamnar deltagaren på väntelistan (deltagaren ser vilket som gäller).
 - Deltagaren får ett bekräftelsemejl med en personlig hemlig länk där anmälan kan ändras eller avbokas.
-- Ändringar är möjliga fram till sista anmälningsdag. Avbokning är möjlig fram till eventets start.
+- Ändringar är möjliga fram till sista anmälningsdag. Avbokning är möjlig fram till eventets start, eller fram till sista anmälningsdag om eventet saknar starttid.
 
 ## Väntelista
 

@@ -176,15 +176,39 @@ class Event extends Model
     {
         return $this->status === EventStatus::Published
             && ! $this->deadlineHasPassed()
-            && $this->starts_at->isFuture();
+            && ! $this->hasStarted();
     }
 
     /**
-     * Get the moment the event is over: its end, or its start when it has no end.
+     * Determine whether the event has a start that has passed.
      */
-    public function endsAtOrStartsAt(): Carbon
+    public function hasStarted(): bool
     {
-        return $this->ends_at ?? $this->starts_at;
+        return $this->starts_at !== null && $this->starts_at->isPast();
+    }
+
+    /**
+     * Get the last moment participants may cancel: the start, or the signup deadline when there is no start.
+     */
+    public function cancellationDeadline(): Carbon
+    {
+        return $this->starts_at ?? $this->signup_deadline;
+    }
+
+    /**
+     * Get the moment the event is over: its end, its start, or its signup deadline, whichever is set first in that order.
+     */
+    public function concludedAt(): Carbon
+    {
+        return $this->ends_at ?? $this->starts_at ?? $this->signup_deadline;
+    }
+
+    /**
+     * Get the date used to sort events: the start, or the signup deadline when there is no start.
+     */
+    public function sortDate(): Carbon
+    {
+        return $this->starts_at ?? $this->signup_deadline;
     }
 
     /**
@@ -192,7 +216,7 @@ class Event extends Model
      */
     public function signupsExpireAt(): Carbon
     {
-        return $this->endsAtOrStartsAt()->copy()->addDays($this->retention_days);
+        return $this->concludedAt()->copy()->addDays($this->retention_days);
     }
 
     /**

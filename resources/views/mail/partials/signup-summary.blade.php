@@ -2,7 +2,9 @@
 | | |
 |:--|:--|
 | **{{ __('Event') }}** | {{ $event->title }} |
+@if ($event->starts_at)
 | **{{ __('When') }}** | {{ $event->starts_at->isoFormat('LLLL') }} |
+@endif
 @if ($event->location)
 | **{{ __('Where') }}** | {{ $event->location }} |
 @endif

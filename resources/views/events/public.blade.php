@@ -13,13 +13,15 @@
         <h1 class="text-3xl font-semibold tracking-tight">{{ $event->title }}</h1>
 
         <dl class="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">
-            <dt class="font-medium text-stone-500">{{ __('When') }}</dt>
-            <dd>
-                {{ $event->starts_at->isoFormat('LLLL') }}
-                @if ($event->ends_at)
-                    – {{ $event->ends_at->isSameDay($event->starts_at) ? $event->ends_at->isoFormat('LT') : $event->ends_at->isoFormat('LLLL') }}
-                @endif
-            </dd>
+            @if ($event->starts_at)
+                <dt class="font-medium text-stone-500">{{ __('When') }}</dt>
+                <dd>
+                    {{ $event->starts_at->isoFormat('LLLL') }}
+                    @if ($event->ends_at)
+                        – {{ $event->ends_at->isSameDay($event->starts_at) ? $event->ends_at->isoFormat('LT') : $event->ends_at->isoFormat('LLLL') }}
+                    @endif
+                </dd>
+            @endif
             @if ($event->location)
                 <dt class="font-medium text-stone-500">{{ __('Where') }}</dt>
                 <dd>{{ $event->location }}</dd>

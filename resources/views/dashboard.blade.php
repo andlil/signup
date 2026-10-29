@@ -19,7 +19,7 @@
                         <div class="min-w-0 flex-1">
                             <p class="font-medium">{{ $event->title }}</p>
                             <p class="mt-0.5 text-sm text-stone-600">
-                                {{ $event->starts_at->isoFormat('LLL') }}@if ($event->location) · {{ $event->location }}@endif
+                                {{ $event->starts_at ? $event->starts_at->isoFormat('LLL') : __('Sign up by :date', ['date' => $event->signup_deadline->isoFormat('LLL')]) }}@if ($event->location) · {{ $event->location }}@endif
                                 @if ($showOrganizer) · {{ $event->user->name }}@endif
                             </p>
                         </div>
