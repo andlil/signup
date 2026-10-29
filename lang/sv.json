@@ -197,6 +197,7 @@
     "The last day to cancel has passed. Contact the organizer if you can no longer come.": "Sista dag för avbokning har passerat. Kontakta arrangören om du inte kan komma.",
     "The link is valid for :minutes minutes and can only be used once.": "Länken gäller i :minutes minuter och kan bara användas en gång.",
     "The link no longer works": "Länken fungerar inte längre",
+    "The organizer has cancelled your signup for :event": "Arrangören har avbokat din anmälan till :event",
     "The organizer has cancelled your signup for :event.": "Arrangören har avbokat din anmälan till :event.",
     "The period can be at most :days days.": "Perioden kan vara högst :days dagar.",
     "The period has no weekdays.": "Perioden innehåller inga vardagar.",

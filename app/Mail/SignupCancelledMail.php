@@ -25,7 +25,9 @@ class SignupCancelledMail extends Mailable implements ShouldQueue
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: __('Your signup for :event has been cancelled', ['event' => $this->signup->event->title]),
+            subject: $this->byOrganizer
+                ? __('The organizer has cancelled your signup for :event', ['event' => $this->signup->event->title])
+                : __('Your signup for :event has been cancelled', ['event' => $this->signup->event->title]),
         );
     }
 

@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Mail\AccountCreatedMail;
 use App\Mail\MagicLinkMail;
+use App\Mail\SignupCancelledMail;
 use App\Mail\SignupReceivedMail;
 use App\Models\Event;
 use App\Models\Question;
@@ -61,5 +62,18 @@ class MailContentTest extends TestCase
         $signup = Signup::factory()->for($event)->waitlisted()->create();
 
         (new SignupReceivedMail($signup))->locale('en')->assertSeeInText('you are number 2 on the waiting list');
+    }
+
+    public function test_the_cancellation_subject_says_who_cancelled(): void
+    {
+        $signup = Signup::factory()->cancelled()->create();
+        $signup->event->update(['title' => 'Kräftskiva']);
+        $signup->refresh();
+
+        (new SignupCancelledMail($signup))->locale('sv')
+            ->assertHasSubject('Din anmälan till Kräftskiva har avbokats');
+
+        (new SignupCancelledMail($signup, byOrganizer: true))->locale('sv')
+            ->assertHasSubject('Arrangören har avbokat din anmälan till Kräftskiva');
     }
 }
