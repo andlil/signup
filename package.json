@@ -15,5 +15,11 @@
     },
     "optionalDependencies": {
         "@laravel/multiplex": "^0.4.1"
+    },
+    "dependencies": {
+        "@tiptap/core": "3.31.4",
+        "@tiptap/markdown": "3.31.4",
+        "@tiptap/pm": "3.31.4",
+        "@tiptap/starter-kit": "3.31.4"
     }
 }

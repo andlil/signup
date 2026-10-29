@@ -22,8 +22,7 @@
 
             <div>
                 <x-form.label for="description">{{ __('Description') }}</x-form.label>
-                <p class="text-sm text-stone-500">{{ __('You can use Markdown: **bold**, *italic*, # headings, - lists and [links](https://example.com).') }}</p>
-                <x-form.textarea id="description" wire:model="description" rows="8" />
+                <x-form.markdown-editor id="description" property="description" />
                 <x-form.error for="description" />
             </div>
 

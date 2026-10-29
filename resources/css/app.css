@@ -26,3 +26,13 @@
     & code { @apply rounded bg-stone-100 px-1 py-0.5 text-sm; }
     & hr { @apply border-stone-200; }
 }
+
+/* The description editor: show an empty editor as a text field, and keep its content readable while editing. */
+.ProseMirror {
+    word-break: break-word;
+
+    & p.is-editor-empty:first-child::before {
+        content: attr(data-placeholder);
+        @apply pointer-events-none float-left h-0 text-stone-400;
+    }
+}
