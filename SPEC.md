@@ -67,11 +67,15 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
 - Ordningen bestäms av när anmälan gjordes.
 - När en plats blir ledig (vid avbokning, ändrat antal eller utökat max) flyttas den som står först upp automatiskt, så länge personen ryms, och får ett mejl.
 - Om platserna räknas via antal-fältet och den som står först inte ryms, prövas nästa person i ordningen.
+- En bekräftad deltagare som vill öka sitt antal får det bara om platserna räcker. Annars visas ett fel, och deltagaren behåller sin plats.
+- En anmälan får inte vara större än eventets totala antal platser.
+- Om arrangören minskar antalet platser avbokas ingen. Nya anmälningar hamnar då på väntelistan.
+- Varje e-postadress kan bara ha en aktiv anmälan per event.
 
 ## Admin för arrangör
 
 - Lista över egna event med antal anmälda, antal på väntelistan och antal lediga platser
-- Anmälningslista per event, där arrangören kan avboka eller radera enskilda anmälningar
+- Anmälningslista per event, där arrangören kan avboka enskilda anmälningar (deltagaren får ett mejl) och radera avbokade anmälningar
 - Excel-export (`.xlsx`) med en rad per anmälan och en kolumn per fråga, plus kolumnerna status (bekräftad/väntelista) och tidpunkt för anmälan
 
 ## Bakgrundsjobb (scheduler)

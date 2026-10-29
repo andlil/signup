@@ -40,21 +40,43 @@
             @if (! $isPreview && ! $event->acceptsSignups())
                 <p class="mt-2 text-stone-600">{{ __('Signups for this event are closed.') }}</p>
             @else
-                <form class="mt-4 space-y-5" onsubmit="return false">
-                    <div>
-                        <x-form.label for="name">{{ __('Name') }} <span class="text-red-700">*</span></x-form.label>
-                        <x-form.input id="name" name="name" type="text" required autocomplete="name" disabled />
-                    </div>
-                    <div>
-                        <x-form.label for="email">{{ __('Email') }} <span class="text-red-700">*</span></x-form.label>
-                        <x-form.input id="email" name="email" type="email" required autocomplete="email" disabled />
+                @if ($remainingPlaces !== null)
+                    <p @class([
+                        'mt-2 rounded-md px-3 py-2 text-sm',
+                        'bg-teal-50 text-teal-900' => $remainingPlaces > 0,
+                        'bg-amber-50 text-amber-900' => $remainingPlaces === 0,
+                    ])>
+                        @if ($remainingPlaces > 0)
+                            {{ trans_choice(':count place left of :capacity.|:count places left of :capacity.', $remainingPlaces, ['capacity' => $event->capacity]) }}
+                        @else
+                            {{ __('The event is full. If you sign up, you go on the waiting list and get an email if a place becomes free.') }}
+                        @endif
+                    </p>
+                @endif
+
+                <form method="POST" action="{{ route('signups.store', $event) }}" class="mt-4 space-y-5">
+                    @csrf
+
+                    <x-signups.fields :event="$event" />
+
+                    <div class="hidden" aria-hidden="true">
+                        <label for="website">Website</label>
+                        <input id="website" name="website" type="text" tabindex="-1" autocomplete="off">
                     </div>
 
-                    @foreach ($event->questions as $question)
-                        <x-events.question-field :question="$question" disabled />
-                    @endforeach
+                    <div>
+                        <label class="flex items-start gap-2 text-sm">
+                            <input type="checkbox" name="consent" value="1" required @checked(old('consent')) class="mt-0.5 rounded border-stone-300">
+                            <span>{{ __('I agree that my answers are stored so the organizer can manage the event. They are deleted :days days after the event.', ['days' => $event->retention_days]) }} <span class="text-red-700">*</span></span>
+                        </label>
+                        <x-form.error for="consent" />
+                    </div>
 
-                    <p class="rounded-md bg-stone-100 px-3 py-2 text-sm text-stone-600">{{ __('Signing up opens in the next version.') }}</p>
+                    @if ($isPreview)
+                        <p class="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-900">{{ __('Signing up opens when the event is published.') }}</p>
+                    @else
+                        <x-button>{{ $remainingPlaces === 0 ? __('Join the waiting list') : __('Sign up') }}</x-button>
+                    @endif
                 </form>
             @endif
         </section>

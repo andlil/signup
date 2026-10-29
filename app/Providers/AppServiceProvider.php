@@ -32,6 +32,10 @@ class AppServiceProvider extends ServiceProvider
             Limit::perMinute(20)->by($request->ip()),
         ]);
 
+        RateLimiter::for('signups', fn (Request $request): Limit => Limit::perMinute(10)->by($request->ip()));
+
+        RateLimiter::for('manage-signup', fn (Request $request): Limit => Limit::perMinute(30)->by($request->ip()));
+
         RateLimiter::for('magic-link-consume', fn (Request $request): Limit => Limit::perMinute(10)->by($request->ip()));
     }
 }

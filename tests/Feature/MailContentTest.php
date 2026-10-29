@@ -4,6 +4,10 @@ namespace Tests\Feature;
 
 use App\Mail\AccountCreatedMail;
 use App\Mail\MagicLinkMail;
+use App\Mail\SignupReceivedMail;
+use App\Models\Event;
+use App\Models\Question;
+use App\Models\Signup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -33,5 +37,29 @@ class MailContentTest extends TestCase
         $mail->assertHasSubject('You have an account on '.config('app.name'));
         $mail->assertSeeInHtml(route('login'));
         $mail->assertSeeInText('Hi Bertil!');
+    }
+
+    public function test_the_signup_confirmation_lists_the_answers_and_the_personal_link(): void
+    {
+        $event = Event::factory()->published()->create(['title' => 'Kräftskiva']);
+        $question = Question::factory()->for($event)->create(['label' => 'Allergier']);
+        $signup = Signup::factory()->for($event)->create(['name' => 'Anna', 'answers' => [$question->id => 'Nötter']]);
+
+        $mail = (new SignupReceivedMail($signup))->locale('sv');
+
+        $mail->assertHasSubject('Din anmälan till Kräftskiva');
+        $mail->assertSeeInText('Din plats är bekräftad.');
+        $mail->assertSeeInText('Allergier');
+        $mail->assertSeeInText('Nötter');
+        $mail->assertSeeInHtml($signup->manageUrl());
+    }
+
+    public function test_the_waitlist_confirmation_says_which_place_in_line(): void
+    {
+        $event = Event::factory()->published()->create(['capacity' => 1]);
+        Signup::factory()->for($event)->waitlisted()->create();
+        $signup = Signup::factory()->for($event)->waitlisted()->create();
+
+        (new SignupReceivedMail($signup))->locale('en')->assertSeeInText('you are number 2 on the waiting list');
     }
 }

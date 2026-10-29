@@ -1,9 +1,10 @@
-@props(['question', 'disabled' => false])
+@props(['question', 'value' => null, 'disabled' => false])
 
 @php
     use App\Enums\QuestionType;
     $id = 'question-'.$question->id;
     $name = 'answers['.$question->id.']';
+    $current = old('answers.'.$question->id, $value);
 @endphp
 
 <div>
@@ -17,10 +18,10 @@
                 @foreach ($question->options as $option)
                     <label class="flex items-center gap-2 text-sm">
                         @if ($question->type === QuestionType::SingleChoice)
-                            <input type="radio" name="{{ $name }}" value="{{ $option }}" @checked(old('answers.'.$question->id) === $option)
+                            <input type="radio" name="{{ $name }}" value="{{ $option }}" @checked($current === $option)
                                 @required($question->is_required) @disabled($disabled) class="border-stone-300">
                         @else
-                            <input type="checkbox" name="{{ $name }}[]" value="{{ $option }}" @checked(in_array($option, (array) old('answers.'.$question->id, []), true))
+                            <input type="checkbox" name="{{ $name }}[]" value="{{ $option }}" @checked(in_array($option, (array) $current, true))
                                 @disabled($disabled) class="rounded border-stone-300">
                         @endif
                         {{ $option }}
@@ -36,25 +37,25 @@
 
         @switch($question->type)
             @case(QuestionType::LongText)
-                <x-form.textarea :id="$id" :name="$name" rows="4" :required="$question->is_required" :disabled="$disabled">{{ old('answers.'.$question->id) }}</x-form.textarea>
+                <x-form.textarea :id="$id" :name="$name" rows="4" :required="$question->is_required" :disabled="$disabled">{{ $current }}</x-form.textarea>
                 @break
             @case(QuestionType::Dropdown)
                 <x-form.select :id="$id" :name="$name" :required="$question->is_required" :disabled="$disabled">
                     <option value="">{{ __('Choose…') }}</option>
                     @foreach ($question->options as $option)
-                        <option value="{{ $option }}" @selected(old('answers.'.$question->id) === $option)>{{ $option }}</option>
+                        <option value="{{ $option }}" @selected($current === $option)>{{ $option }}</option>
                     @endforeach
                 </x-form.select>
                 @break
             @case(QuestionType::Date)
-                <x-form.input :id="$id" :name="$name" type="date" :value="old('answers.'.$question->id)" :required="$question->is_required" :disabled="$disabled" class="max-w-xs" />
+                <x-form.input :id="$id" :name="$name" type="date" :value="$current" :required="$question->is_required" :disabled="$disabled" class="max-w-xs" />
                 @break
             @case(QuestionType::Number)
-                <x-form.input :id="$id" :name="$name" type="number" :value="old('answers.'.$question->id)" :min="$question->min_value" :max="$question->max_value"
+                <x-form.input :id="$id" :name="$name" type="number" :value="$current" :min="$question->min_value" :max="$question->max_value"
                     :required="$question->is_required" :disabled="$disabled" class="max-w-40" />
                 @break
             @default
-                <x-form.input :id="$id" :name="$name" type="text" :value="old('answers.'.$question->id)" maxlength="1000" :required="$question->is_required" :disabled="$disabled" />
+                <x-form.input :id="$id" :name="$name" type="text" :value="$current" maxlength="1000" :required="$question->is_required" :disabled="$disabled" />
         @endswitch
     @endif
 

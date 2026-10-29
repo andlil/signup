@@ -4,6 +4,7 @@ namespace App\Livewire\Events;
 
 use App\Enums\NotificationMode;
 use App\Models\Event;
+use App\Services\SignupService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
@@ -79,7 +80,7 @@ class EventEditor extends Component
     /**
      * Save the event, sending new events on to the form builder.
      */
-    public function save(): void
+    public function save(SignupService $signups): void
     {
         $this->event === null
             ? Gate::authorize('create', Event::class)
@@ -120,6 +121,10 @@ class EventEditor extends Component
         }
 
         $event->save();
+
+        if (! $isNew && $event->wasChanged('capacity')) {
+            $signups->promoteWaitlist($event);
+        }
 
         $this->reset('cover', 'removeCover');
 

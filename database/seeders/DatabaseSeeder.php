@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Enums\QuestionType;
 use App\Models\Event;
 use App\Models\Question;
+use App\Models\Signup;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
@@ -51,5 +52,16 @@ class DatabaseSeeder extends Seeder
             'label' => 'Allergier eller annat vi bör veta?',
             'position' => 3,
         ]);
+
+        $event->publish();
+
+        foreach ([['Bertil Berg', 4], ['Cecilia Ek', 2], ['David Ström', 1]] as [$name, $places]) {
+            Signup::factory()->for($event)->create([
+                'name' => $name,
+                'email' => str($name)->before(' ')->lower()->ascii().'@example.com',
+                'places' => $places,
+                'answers' => [$people->id => $places],
+            ]);
+        }
     }
 }

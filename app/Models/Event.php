@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\EventStatus;
 use App\Enums\NotificationMode;
+use App\Enums\SignupStatus;
 use Database\Factories\EventFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
@@ -89,6 +90,32 @@ class Event extends Model
     public function questions(): HasMany
     {
         return $this->hasMany(Question::class)->orderBy('position');
+    }
+
+    /**
+     * Get the event's signups, including cancelled ones.
+     *
+     * @return HasMany<Signup, $this>
+     */
+    public function signups(): HasMany
+    {
+        return $this->hasMany(Signup::class);
+    }
+
+    /**
+     * Get the number of places taken by confirmed signups.
+     */
+    public function takenPlaces(): int
+    {
+        return (int) $this->signups()->where('status', SignupStatus::Confirmed)->sum('places');
+    }
+
+    /**
+     * Get the number of free places, or null when the number of places is unlimited.
+     */
+    public function remainingPlaces(): ?int
+    {
+        return $this->capacity === null ? null : max(0, $this->capacity - $this->takenPlaces());
     }
 
     /**

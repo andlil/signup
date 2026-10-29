@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\SignupStatus;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -19,7 +20,8 @@ class DashboardController extends Controller
             'events' => Event::query()
                 ->visibleTo($user)
                 ->with('user')
-                ->withCount('questions')
+                ->withCount(['questions', 'signups as waitlisted_count' => fn ($query) => $query->where('status', SignupStatus::Waitlisted)])
+                ->withSum(['signups as confirmed_places' => fn ($query) => $query->where('status', SignupStatus::Confirmed)], 'places')
                 ->orderByDesc('starts_at')
                 ->get(),
             'showOrganizer' => $user->isAdmin(),

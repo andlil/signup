@@ -19,5 +19,6 @@ class DatabaseSeederTest extends TestCase
         $this->assertNotNull($event->slug);
         $this->assertSame(3, $event->questions()->count());
         $this->assertNotNull($event->capacity_question_id);
+        $this->assertSame(7, $event->takenPlaces());
     }
 }

@@ -23,7 +23,16 @@
                                 @if ($showOrganizer) · {{ $event->user->name }}@endif
                             </p>
                         </div>
-                        <span class="text-sm text-stone-500">{{ trans_choice(':count question|:count questions', $event->questions_count) }}</span>
+                        <span class="text-sm text-stone-600">
+                            @if ($event->capacity !== null)
+                                {{ __(':taken of :capacity places', ['taken' => (int) $event->confirmed_places, 'capacity' => $event->capacity]) }}
+                            @else
+                                {{ trans_choice(':count place taken|:count places taken', (int) $event->confirmed_places) }}
+                            @endif
+                            @if ($event->waitlisted_count > 0)
+                                · {{ trans_choice(':count on the waiting list|:count on the waiting list', $event->waitlisted_count) }}
+                            @endif
+                        </span>
                         <x-events.status-badge :status="$event->status" />
                     </a>
                 </li>

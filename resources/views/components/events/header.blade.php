@@ -5,6 +5,7 @@
     $tabs = [
         'details' => ['route' => 'events.edit', 'label' => __('Details')],
         'form' => ['route' => 'events.form', 'label' => __('Form')],
+        'signups' => ['route' => 'events.signups', 'label' => __('Signups')],
     ];
 @endphp
 

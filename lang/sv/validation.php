@@ -16,6 +16,8 @@ return [
     'array' => ':Attribute måste vara en lista.',
     'after_or_equal' => ':Attribute måste vara samma som eller efter :date.',
     'boolean' => ':Attribute måste vara sant eller falskt.',
+    'date_format' => ':Attribute måste ha formatet :format.',
+    'distinct' => ':Attribute har ett dubblettvärde.',
     'date' => ':Attribute måste vara ett giltigt datum.',
     'email' => ':Attribute måste vara en giltig e-postadress.',
     'enum' => 'Det valda värdet för :attribute är ogiltigt.',
@@ -45,6 +47,7 @@ return [
 
     'attributes' => [
         'capacity' => 'antal platser',
+        'consent' => 'samtycke',
         'cover' => 'omslagsbild',
         'description' => 'beskrivning',
         'email' => 'e-post',

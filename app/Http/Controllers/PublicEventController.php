@@ -24,6 +24,7 @@ class PublicEventController extends Controller
         return view('events.public', [
             'event' => $event,
             'isPreview' => $isPreview,
+            'remainingPlaces' => $event->remainingPlaces(),
         ]);
     }
 }
