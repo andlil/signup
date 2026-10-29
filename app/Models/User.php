@@ -67,6 +67,16 @@ class User extends Authenticatable implements HasLocalePreference
     }
 
     /**
+     * Get the events the user organizes.
+     *
+     * @return HasMany<Event, $this>
+     */
+    public function events(): HasMany
+    {
+        return $this->hasMany(Event::class);
+    }
+
+    /**
      * Determine whether the user is the main admin.
      */
     public function isAdmin(): bool

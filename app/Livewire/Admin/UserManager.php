@@ -78,6 +78,12 @@ class UserManager extends Component
     {
         $user = $this->findOtherUser($userId);
 
+        if ($user->events()->exists()) {
+            $this->status = __(':email has events and cannot be deleted. Deactivate the account instead.', ['email' => $user->email]);
+
+            return;
+        }
+
         $user->delete();
 
         $this->status = __('The account for :email has been deleted.', ['email' => $user->email]);

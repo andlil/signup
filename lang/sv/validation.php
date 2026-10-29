@@ -14,13 +14,18 @@ return [
 
     'accepted' => ':Attribute måste godkännas.',
     'array' => ':Attribute måste vara en lista.',
+    'after_or_equal' => ':Attribute måste vara samma som eller efter :date.',
     'boolean' => ':Attribute måste vara sant eller falskt.',
     'date' => ':Attribute måste vara ett giltigt datum.',
     'email' => ':Attribute måste vara en giltig e-postadress.',
     'enum' => 'Det valda värdet för :attribute är ogiltigt.',
+    'gte' => [
+        'numeric' => ':Attribute måste vara minst :value.',
+    ],
     'image' => ':Attribute måste vara en bild.',
     'in' => 'Det valda värdet för :attribute är ogiltigt.',
     'integer' => ':Attribute måste vara ett heltal.',
+    'mimes' => ':Attribute måste vara en fil av typen: :values.',
     'max' => [
         'array' => ':Attribute får inte ha fler än :max val.',
         'file' => ':Attribute får inte vara större än :max kilobyte.',
@@ -39,10 +44,26 @@ return [
     'unique' => ':Attribute används redan.',
 
     'attributes' => [
+        'capacity' => 'antal platser',
+        'cover' => 'omslagsbild',
+        'description' => 'beskrivning',
         'email' => 'e-post',
+        'endsAt' => 'slut',
+        'helpText' => 'hjälptext',
+        'label' => 'fråga',
         'locale' => 'språk',
+        'location' => 'plats',
+        'maxValue' => 'högsta tillåtna',
+        'minValue' => 'lägsta tillåtna',
         'name' => 'namn',
+        'notificationMode' => 'notiser',
+        'optionsText' => 'alternativ',
+        'retentionDays' => 'antal dagar',
         'role' => 'roll',
+        'signupDeadline' => 'sista anmälningsdag',
+        'startsAt' => 'start',
+        'title' => 'titel',
+        'type' => 'svarstyp',
     ],
 
 ];

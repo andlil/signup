@@ -5,6 +5,7 @@ namespace Tests\Feature\Admin;
 use App\Enums\Role;
 use App\Livewire\Admin\UserManager;
 use App\Mail\AccountCreatedMail;
+use App\Models\Event;
 use App\Models\LoginToken;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -103,6 +104,18 @@ class UserManagerTest extends TestCase
             ->call('delete', $organizer->id);
 
         $this->assertModelMissing($organizer);
+    }
+
+    public function test_an_account_with_events_cannot_be_deleted(): void
+    {
+        $event = Event::factory()->create();
+
+        Livewire::actingAs(User::factory()->admin()->create())
+            ->test(UserManager::class)
+            ->call('delete', $event->user_id)
+            ->assertSee(__(':email has events and cannot be deleted. Deactivate the account instead.', ['email' => $event->user->email]));
+
+        $this->assertModelExists($event->user);
     }
 
     public function test_the_main_admin_cannot_deactivate_or_delete_themselves(): void

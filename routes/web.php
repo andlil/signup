@@ -1,11 +1,18 @@
 <?php
 
 use App\Http\Controllers\Auth\MagicLinkController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\EventPublicationController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\PublicEventController;
 use App\Livewire\Admin\UserManager;
+use App\Livewire\Events\EventEditor;
+use App\Livewire\Events\FormBuilder;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/locale', LocaleController::class)->name('locale.update');
+
+Route::get('/e/{event:slug}', PublicEventController::class)->name('events.public');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [MagicLinkController::class, 'create'])->name('login');
@@ -20,8 +27,15 @@ Route::middleware('guest')->group(function () {
 
 Route::middleware('auth')->group(function () {
     Route::redirect('/', '/dashboard');
-    Route::view('/dashboard', 'dashboard')->name('dashboard');
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::post('/logout', [MagicLinkController::class, 'destroy'])->name('logout');
+
+    Route::get('/events/create', EventEditor::class)->name('events.create');
+    Route::get('/events/{event}/edit', EventEditor::class)->name('events.edit');
+    Route::get('/events/{event}/form', FormBuilder::class)->name('events.form');
+    Route::post('/events/{event}/publish', [EventPublicationController::class, 'publish'])->name('events.publish');
+    Route::post('/events/{event}/close', [EventPublicationController::class, 'close'])->name('events.close');
+    Route::post('/events/{event}/reopen', [EventPublicationController::class, 'reopen'])->name('events.reopen');
 
     Route::get('/admin/users', UserManager::class)
         ->middleware('can:manage-users')
