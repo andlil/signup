@@ -35,6 +35,8 @@ class EventEditor extends Component
 
     public string $signupDeadline = '';
 
+    public bool $allowLateCancellation = false;
+
     public string $capacity = '';
 
     public string $notificationMode = NotificationMode::EachSignup->value;
@@ -63,6 +65,7 @@ class EventEditor extends Component
         $this->startsAt = $event->starts_at?->format(self::DATETIME_FORMAT) ?? '';
         $this->endsAt = $event->ends_at?->format(self::DATETIME_FORMAT) ?? '';
         $this->signupDeadline = $event->signup_deadline?->format(self::DATETIME_FORMAT) ?? '';
+        $this->allowLateCancellation = $event->allow_late_cancellation;
         $this->capacity = (string) ($event->capacity ?? '');
         $this->notificationMode = $event->notification_mode->value;
         $this->retentionDays = $event->retention_days;
@@ -84,6 +87,7 @@ class EventEditor extends Component
             'startsAt' => ['nullable', 'required_without:signupDeadline', 'required_with:endsAt', 'date'],
             'endsAt' => ['nullable', 'date', 'after_or_equal:startsAt'],
             'signupDeadline' => ['nullable', 'required_without:startsAt', 'date'],
+            'allowLateCancellation' => ['boolean'],
             'capacity' => ['nullable', 'integer', 'min:1', 'max:100000'],
             'notificationMode' => ['required', Rule::enum(NotificationMode::class)],
             'retentionDays' => ['required', 'integer', 'min:1', 'max:3650'],
@@ -100,6 +104,7 @@ class EventEditor extends Component
             'starts_at' => $validated['startsAt'] ?: null,
             'ends_at' => $validated['endsAt'] ?: null,
             'signup_deadline' => $validated['signupDeadline'] ?: null,
+            'allow_late_cancellation' => $validated['allowLateCancellation'],
             'capacity' => $validated['capacity'] === '' ? null : (int) $validated['capacity'],
             'notification_mode' => $validated['notificationMode'],
             'retention_days' => $validated['retentionDays'],

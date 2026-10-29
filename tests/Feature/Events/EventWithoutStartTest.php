@@ -56,6 +56,16 @@ class EventWithoutStartTest extends TestCase
         $this->delete(route('signups.destroy', ['token' => $late->manage_token]))->assertForbidden();
     }
 
+    public function test_with_late_cancellation_and_no_start_participants_can_always_cancel(): void
+    {
+        Mail::fake();
+        $event = Event::factory()->withoutStart()->published()->create(['signup_deadline' => now()->subMonth(), 'allow_late_cancellation' => true]);
+        $signup = Signup::factory()->for($event)->create();
+
+        $this->delete(route('signups.destroy', ['token' => $signup->manage_token]))->assertRedirect();
+        $this->assertSame(SignupStatus::Cancelled, $signup->fresh()->status);
+    }
+
     public function test_signups_are_deleted_counting_from_the_last_day_to_sign_up(): void
     {
         $event = Event::factory()->withoutStart()->published()->create(['signup_deadline' => now()->subDays(31), 'retention_days' => 30]);

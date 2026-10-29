@@ -60,6 +60,14 @@
                 <x-form.input id="signupDeadline" type="datetime-local" wire:model="signupDeadline" />
                 <p class="mt-1 text-sm text-stone-500">{{ __('The form closes automatically after this.') }}</p>
                 <x-form.error for="signupDeadline" />
+
+                <label class="mt-3 flex items-start gap-2 text-sm">
+                    <input type="checkbox" wire:model="allowLateCancellation" class="mt-0.5 rounded border-stone-300">
+                    <span>
+                        <span class="font-medium">{{ __('Allow cancelling after the last day to sign up') }}</span><br>
+                        <span class="text-stone-600">{{ __('Participants can then cancel until the event starts. Otherwise cancelling closes together with signups.') }}</span>
+                    </span>
+                </label>
             </div>
 
             <div>

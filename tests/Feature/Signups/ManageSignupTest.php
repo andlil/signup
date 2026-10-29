@@ -133,7 +133,7 @@ class ManageSignupTest extends TestCase
         Mail::assertQueued(OrganizerSignupMail::class, fn (OrganizerSignupMail $mail): bool => $mail->cancelled);
     }
 
-    public function test_answers_cannot_be_changed_after_the_deadline_but_the_signup_can_be_cancelled(): void
+    public function test_after_the_deadline_answers_cannot_be_changed_and_by_default_the_signup_cannot_be_cancelled(): void
     {
         $event = Event::factory()->published()->create(['signup_deadline' => now()->subDay()]);
         $signup = Signup::factory()->for($event)->create();
@@ -141,15 +141,58 @@ class ManageSignupTest extends TestCase
         $this->get($signup->manageUrl())
             ->assertOk()
             ->assertSee(__('Signups for the event are closed, so the answers can no longer be changed.'))
-            ->assertSee(__('Cancel my signup'));
+            ->assertSee(__('The last day to cancel has passed. Contact the organizer if you can no longer come.'))
+            ->assertDontSee(__('Cancel my signup'));
 
         $this->put(route('signups.update', ['token' => $signup->manage_token]), [
             'name' => 'Ändrat',
             'email' => $signup->email,
         ])->assertForbidden();
 
+        $this->delete(route('signups.destroy', ['token' => $signup->manage_token]))->assertForbidden();
+        $this->assertSame(SignupStatus::Confirmed, $signup->fresh()->status);
+    }
+
+    public function test_the_organizer_can_allow_cancelling_until_the_event_starts(): void
+    {
+        Mail::fake();
+        $event = Event::factory()->published()->create([
+            'signup_deadline' => now()->subDay(),
+            'starts_at' => now()->addWeek(),
+            'allow_late_cancellation' => true,
+        ]);
+        $signup = Signup::factory()->for($event)->create();
+
+        $this->withSession(['locale' => 'sv'])
+            ->get($signup->manageUrl())
+            ->assertSee(__('Cancel my signup'))
+            ->assertSee('Du kan avboka fram till');
+
         $this->delete(route('signups.destroy', ['token' => $signup->manage_token]))->assertRedirect();
         $this->assertSame(SignupStatus::Cancelled, $signup->fresh()->status);
+    }
+
+    public function test_late_cancellation_never_continues_past_the_start(): void
+    {
+        $event = Event::factory()->published()->create([
+            'signup_deadline' => now()->subDays(2),
+            'starts_at' => now()->subHour(),
+            'allow_late_cancellation' => true,
+        ]);
+        $signup = Signup::factory()->for($event)->create();
+
+        $this->delete(route('signups.destroy', ['token' => $signup->manage_token]))->assertForbidden();
+    }
+
+    public function test_cancelling_closes_at_the_start_if_it_comes_before_the_deadline(): void
+    {
+        $event = Event::factory()->published()->create([
+            'starts_at' => now()->subHour(),
+            'signup_deadline' => now()->addDay(),
+        ]);
+        $signup = Signup::factory()->for($event)->create();
+
+        $this->delete(route('signups.destroy', ['token' => $signup->manage_token]))->assertForbidden();
     }
 
     public function test_a_signup_cannot_be_cancelled_once_the_event_has_started(): void

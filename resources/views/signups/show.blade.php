@@ -64,13 +64,18 @@
         </div>
 
         @if ($signup->canBeCancelled())
+            @if ($event->cancellationDeadline())
+                <p class="mt-6 text-sm text-stone-600">{{ __('You can cancel until :date.', ['date' => $event->cancellationDeadline()->isoFormat('LLL')]) }}</p>
+            @endif
             <form method="POST" action="{{ route('signups.destroy', ['token' => $signup->manage_token]) }}" class="mt-6"
                 onsubmit="return confirm(@js(__('Cancel your signup? Your place goes to the next person on the waiting list.')))">
                 @csrf
                 @method('DELETE')
                 <x-button variant="danger">{{ __('Cancel my signup') }}</x-button>
             </form>
-        @elseif ($signup->status === SignupStatus::Cancelled && $event->acceptsSignups())
+        @elseif ($signup->status !== SignupStatus::Cancelled)
+            <p class="mt-6 text-sm text-stone-600">{{ __('The last day to cancel has passed. Contact the organizer if you can no longer come.') }}</p>
+        @elseif ($event->acceptsSignups())
             <a href="{{ route('events.public', $event) }}" class="mt-6 inline-block text-sm text-teal-700 hover:underline">{{ __('Sign up again') }}</a>
         @endif
     </div>

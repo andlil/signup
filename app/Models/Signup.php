@@ -168,7 +168,8 @@ class Signup extends Model implements HasLocalePreference
      */
     public function canBeCancelled(): bool
     {
-        return $this->status !== SignupStatus::Cancelled && $this->event->cancellationDeadline()->isFuture();
+        return $this->status !== SignupStatus::Cancelled
+            && ($this->event->cancellationDeadline()?->isFuture() ?? true);
     }
 
     /**

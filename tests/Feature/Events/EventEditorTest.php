@@ -30,6 +30,7 @@ class EventEditorTest extends TestCase
             ->set('capacity', '12')
             ->set('notificationMode', NotificationMode::DailySummary->value)
             ->set('retentionDays', 60)
+            ->set('allowLateCancellation', true)
             ->call('save')
             ->assertHasNoErrors()
             ->assertRedirect(route('events.form', Event::query()->sole()));
@@ -41,6 +42,7 @@ class EventEditorTest extends TestCase
         $this->assertSame(12, $event->capacity);
         $this->assertSame(NotificationMode::DailySummary, $event->notification_mode);
         $this->assertSame(60, $event->retention_days);
+        $this->assertTrue($event->allow_late_cancellation);
         $this->assertSame(EventStatus::Draft, $event->status);
         $this->assertMatchesRegularExpression('/^[a-z0-9]{12}$/', $event->slug);
     }
@@ -70,6 +72,7 @@ class EventEditorTest extends TestCase
             ->assertHasNoErrors();
 
         $event = Event::query()->sole();
+        $this->assertFalse($event->allow_late_cancellation);
         $this->assertNull($event->starts_at);
         $this->assertSame('2027-03-31 23:59', $event->signup_deadline->format('Y-m-d H:i'));
     }

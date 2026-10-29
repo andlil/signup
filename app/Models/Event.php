@@ -23,6 +23,7 @@ use Illuminate\Support\Str;
     'starts_at',
     'ends_at',
     'signup_deadline',
+    'allow_late_cancellation',
     'capacity',
     'notification_mode',
     'retention_days',
@@ -41,6 +42,7 @@ class Event extends Model
         'status' => 'draft',
         'notification_mode' => 'each_signup',
         'retention_days' => 30,
+        'allow_late_cancellation' => false,
     ];
 
     /**
@@ -64,6 +66,7 @@ class Event extends Model
             'starts_at' => 'datetime',
             'ends_at' => 'datetime',
             'signup_deadline' => 'datetime',
+            'allow_late_cancellation' => 'boolean',
             'published_at' => 'datetime',
             'summary_sent_at' => 'datetime',
             'capacity' => 'integer',
@@ -187,11 +190,19 @@ class Event extends Model
     }
 
     /**
-     * Get the last moment participants may cancel: the start, or the signup deadline when there is no start.
+     * Get the last moment participants may cancel, or null when they may always cancel.
+     *
+     * Cancelling stops at the signup deadline unless the organizer allows late
+     * cancellations, and never continues past the start of the event.
      */
-    public function cancellationDeadline(): Carbon
+    public function cancellationDeadline(): ?Carbon
     {
-        return $this->starts_at ?? $this->signup_deadline;
+        $limits = array_filter([
+            $this->starts_at,
+            $this->allow_late_cancellation ? null : $this->signup_deadline,
+        ]);
+
+        return $limits === [] ? null : min($limits);
     }
 
     /**
