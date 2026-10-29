@@ -1,58 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# signup
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Self-hostad webbapp för anmälan till event via en unik länk per event. Se [SPEC.md](SPEC.md) för kravspecifikationen.
 
-## About Laravel
+Byggd med Laravel 13, Livewire 4 och MariaDB. Körs med Docker Compose.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Kom igång med Docker
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+1. Skapa konfigurationen och sätt ett eget databaslösenord (`DB_PASSWORD`) i `.env`:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+   ```bash
+   cp .env.example .env
+   ```
 
-## Learning Laravel
+2. Bygg avbildningen och generera en applikationsnyckel. Klistra in nyckeln som `APP_KEY=` i `.env`:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+   ```bash
+   docker compose build
+   ```
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+   ```bash
+   docker compose run --rm --no-deps --entrypoint php app artisan key:generate --show
+   ```
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+3. Starta allt (app, databas, kö-arbetare och schemaläggare). Migreringarna körs automatiskt:
 
-## Agentic Development
+   ```bash
+   docker compose up -d
+   ```
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+4. Skapa huvudadmin:
+
+   ```bash
+   docker compose exec -u www-data app php artisan signup:create-admin du@example.com --name="Ditt namn"
+   ```
+
+5. Gå till http://localhost:8080 och logga in med din e-postadress.
+
+Porten styrs av `APP_PORT` i `.env`. Sätt `APP_URL` till den adress appen nås på, eftersom den används i länkarna i mejlen.
+I produktion bör du även sätta `APP_ENV=production` och `APP_DEBUG=false`.
+
+## E-post
+
+Som standard (`MAIL_MAILER=log`) skickas inga mejl. De skrivs i stället till `storage/logs/laravel.log`, så att du kan hämta inloggningslänkarna där:
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+docker compose exec app grep -o 'http[^ ]*/login/[A-Za-z0-9]*' storage/logs/laravel.log
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+För riktiga mejl sätter du SMTP-uppgifterna i `.env` och startar om:
 
-## Contributing
+```dotenv
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.example.com
+MAIL_PORT=587
+MAIL_USERNAME=användare
+MAIL_PASSWORD=lösenord
+MAIL_FROM_ADDRESS="signup@example.com"
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Mejlen skickas via kön. Det är därför tjänsten `queue` måste vara igång.
 
-## Code of Conduct
+## Utveckling utan Docker
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Kräver PHP 8.3, Composer och Node. Ställ in SQLite med `DB_CONNECTION=sqlite` i `.env`.
 
-## Security Vulnerabilities
+```bash
+composer install
+```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+npm install && npm run build
+```
 
-## License
+```bash
+php artisan migrate --seed
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+```bash
+composer run dev
+```
+
+Seedern skapar `admin@example.com` (huvudadmin) och `arrangor@example.com` (arrangör).
+
+## Tester
+
+```bash
+php artisan test
+```

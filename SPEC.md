@@ -8,7 +8,7 @@ Excel-export.
 
 - Laravel (PHP 8.3+), MySQL/MariaDB
 - Blade + Livewire för gränssnittet
-- Docker / docker-compose: `app` (PHP-FPM + nginx), `db` (MariaDB), `queue` (kö-arbetare), `scheduler`
+- Docker / docker-compose: `app` (PHP + Apache), `db` (MariaDB), `queue` (kö-arbetare), `scheduler`
 - E-post via Laravels mail-konfiguration i `.env` (`MAIL_MAILER=log` under utveckling, SMTP eller tjänst senare)
 - Gränssnitt på svenska och engelska (`lang/sv`, `lang/en`)
 - Excel-export med `.xlsx`
