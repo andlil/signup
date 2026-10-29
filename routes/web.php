@@ -7,6 +7,7 @@ use App\Http\Controllers\LocaleController;
 use App\Http\Controllers\ManageSignupController;
 use App\Http\Controllers\PublicEventController;
 use App\Http\Controllers\SignupController;
+use App\Http\Controllers\SignupExportController;
 use App\Livewire\Admin\UserManager;
 use App\Livewire\Events\EventEditor;
 use App\Livewire\Events\FormBuilder;
@@ -46,6 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/events/{event}/edit', EventEditor::class)->name('events.edit');
     Route::get('/events/{event}/form', FormBuilder::class)->name('events.form');
     Route::get('/events/{event}/signups', SignupList::class)->name('events.signups');
+    Route::get('/events/{event}/signups/export', SignupExportController::class)->name('events.signups.export');
     Route::post('/events/{event}/publish', [EventPublicationController::class, 'publish'])->name('events.publish');
     Route::post('/events/{event}/close', [EventPublicationController::class, 'close'])->name('events.close');
     Route::post('/events/{event}/reopen', [EventPublicationController::class, 'reopen'])->name('events.reopen');

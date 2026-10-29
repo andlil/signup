@@ -6,6 +6,7 @@ use Database\Factories\LoginTokenFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\MassPrunable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Str;
@@ -14,7 +15,7 @@ use Illuminate\Support\Str;
 class LoginToken extends Model
 {
     /** @use HasFactory<LoginTokenFactory> */
-    use HasFactory;
+    use HasFactory, MassPrunable;
 
     /**
      * How many minutes a magic link stays valid.
@@ -79,6 +80,16 @@ class LoginToken extends Model
     public static function hash(string $plainToken): string
     {
         return hash('sha256', $plainToken);
+    }
+
+    /**
+     * Expired tokens are useless, so `model:prune` deletes them a day after they expire.
+     *
+     * @return Builder<self>
+     */
+    public function prunable(): Builder
+    {
+        return self::query()->where('expires_at', '<', now()->subDay());
     }
 
     /**

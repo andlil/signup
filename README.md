@@ -60,6 +60,18 @@ MAIL_FROM_ADDRESS="signup@example.com"
 
 Mejlen skickas via kön. Det är därför tjänsten `queue` måste vara igång.
 
+## Schemalagda jobb
+
+Tjänsten `scheduler` kör följande jobb (tiderna gäller `APP_TIMEZONE`, som standard Europe/Stockholm):
+
+| Tid | Jobb |
+|-----|------|
+| 07:00 | `signup:send-daily-summaries`: daglig sammanfattning till arrangörer som har valt det |
+| 03:00 | `signup:delete-expired-signups`: raderar anmälningar när eventets gallringstid har gått ut (GDPR) |
+| 03:30 | `model:prune`: rensar utgångna inloggningslänkar |
+
+Utan Docker behöver du köra `php artisan schedule:work` (eller `schedule:run` från cron varje minut) och `php artisan queue:work`.
+
 ## Utveckling utan Docker
 
 Kräver PHP 8.3, Composer och Node. Ställ in SQLite med `DB_CONNECTION=sqlite` i `.env`.

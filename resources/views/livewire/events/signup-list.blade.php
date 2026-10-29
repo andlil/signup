@@ -24,7 +24,8 @@
         </div>
     </dl>
 
-    <div class="mt-6 flex flex-wrap gap-2" role="tablist">
+    <div class="mt-6 flex flex-wrap items-center gap-2">
+        <div class="flex flex-wrap gap-2" role="tablist">
         @foreach ($statuses as $statusOption)
             <button type="button" role="tab" wire:click="$set('show', '{{ $statusOption->value }}')"
                 aria-selected="{{ $currentStatus === $statusOption ? 'true' : 'false' }}"
@@ -36,7 +37,16 @@
                 {{ $statusOption->groupLabel() }} ({{ $counts[$statusOption->value]->signups ?? 0 }})
             </button>
         @endforeach
+        </div>
+
+        <a href="{{ route('events.signups.export', $event) }}" class="ml-auto inline-flex items-center rounded-md border border-stone-300 bg-white px-3 py-1.5 text-sm font-medium text-stone-800 hover:bg-stone-50">
+            {{ __('Download Excel') }}
+        </a>
     </div>
+
+    <p class="mt-3 text-sm text-stone-500">
+        {{ __('The signups are deleted automatically on :date, :days days after the event.', ['date' => $event->signupsExpireAt()->isoFormat('LL'), 'days' => $event->retention_days]) }}
+    </p>
 
     @if ($signups->isEmpty())
         <div class="mt-4 rounded-lg border border-dashed border-stone-300 bg-white px-6 py-10 text-center text-sm text-stone-600">

@@ -35,7 +35,7 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
 - Titel, beskrivning (Markdown), omslagsbild samt start- och sluttid och plats
 - Publik länk med en slumpad slug: `/e/{slug}`
 - Status: utkast → publicerat → stängt
-- Sista anmälningsdag (valfri). Efter den är formuläret stängt.
+- Sista anmälningsdag (valfri). Efter den är formuläret stängt. Anmälan stängs alltid när eventet börjar.
 - Max antal platser (valfritt). Arrangören väljer räknesätt per event:
   - en plats per anmälan, eller
   - via ett valt antal-fält i formuläret (t.ex. "antal personer")
@@ -76,11 +76,11 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
 
 - Lista över egna event med antal anmälda, antal på väntelistan och antal lediga platser
 - Anmälningslista per event, där arrangören kan avboka enskilda anmälningar (deltagaren får ett mejl) och radera avbokade anmälningar
-- Excel-export (`.xlsx`) med en rad per anmälan och en kolumn per fråga, plus kolumnerna status (bekräftad/väntelista) och tidpunkt för anmälan
+- Excel-export (`.xlsx`) med en rad per anmälan och en kolumn per fråga, plus kolumnerna status (bekräftad/väntelista), platser och tidpunkt för anmälan. Bekräftade listas först, sedan väntelistan i ordning. Avbokade tas inte med. Svar som ser ut som formler sparas som text.
 
 ## Bakgrundsjobb (scheduler)
 
-- Daglig sammanfattning till de arrangörer som har valt det
+- Daglig sammanfattning kl. 07 till de arrangörer som har valt det: ett mejl per arrangör med nya anmälningar och avbokningar sedan förra sammanfattningen. Inget mejl skickas om inget har hänt.
 - Radering av anmälningar för event som slutade för mer än X dagar sedan
 - Rensning av utgångna magic link-token
 

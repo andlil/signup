@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
@@ -65,6 +66,7 @@ class Event extends Model
             'ends_at' => 'datetime',
             'signup_deadline' => 'datetime',
             'published_at' => 'datetime',
+            'summary_sent_at' => 'datetime',
             'capacity' => 'integer',
             'retention_days' => 'integer',
             'status' => EventStatus::class,
@@ -172,7 +174,25 @@ class Event extends Model
      */
     public function acceptsSignups(): bool
     {
-        return $this->status === EventStatus::Published && ! $this->deadlineHasPassed();
+        return $this->status === EventStatus::Published
+            && ! $this->deadlineHasPassed()
+            && $this->starts_at->isFuture();
+    }
+
+    /**
+     * Get the moment the event is over: its end, or its start when it has no end.
+     */
+    public function endsAtOrStartsAt(): Carbon
+    {
+        return $this->ends_at ?? $this->starts_at;
+    }
+
+    /**
+     * Get the moment the event's signups, and the personal data in them, are deleted.
+     */
+    public function signupsExpireAt(): Carbon
+    {
+        return $this->endsAtOrStartsAt()->copy()->addDays($this->retention_days);
     }
 
     /**
