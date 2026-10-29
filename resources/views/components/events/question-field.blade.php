@@ -8,7 +8,9 @@
 @endphp
 
 <div>
-    @if (in_array($question->type, [QuestionType::SingleChoice, QuestionType::Checkboxes], true))
+    @if ($question->type === QuestionType::VacationDays)
+        <x-events.vacation-calendar :question="$question" :name="$name.'[]'" :selected="(array) $current" :disabled="$disabled" />
+    @elseif (in_array($question->type, [QuestionType::SingleChoice, QuestionType::Checkboxes], true))
         <fieldset>
             <legend class="block text-sm font-medium">
                 {{ $question->label }} @if ($question->is_required) <span class="text-red-700">*</span> @endif

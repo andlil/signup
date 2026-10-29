@@ -49,7 +49,7 @@ class SignupExport
                 $this->text($signup->email),
                 $this->text($signup->status->label()),
                 Cell::fromValue($signup->places),
-                ...$questions->map(fn (Question $question): Cell => $this->answerCell($signup, $question, $dateStyle)),
+                ...$questions->flatMap(fn (Question $question): array => $this->answerCells($signup, $question, $dateStyle)),
                 Cell::fromValue($signup->created_at->toDateTimeImmutable(), $dateTimeStyle),
             ]));
         });
@@ -91,7 +91,7 @@ class SignupExport
             __('Email'),
             __('Status'),
             __('Places'),
-            ...$questions->pluck('label'),
+            ...$questions->flatMap(fn (Question $question): array => $this->questionHeadings($question)),
             __('Signed up'),
         ];
     }
@@ -108,6 +108,43 @@ class SignupExport
             ->orderByRaw('case when status = ? then 0 else 1 end', [SignupStatus::Confirmed->value])
             ->orderBy('id')
             ->get();
+    }
+
+    /**
+     * A vacation planning question gets a column with the number of days, then one column per day.
+     *
+     * @return list<string>
+     */
+    private function questionHeadings(Question $question): array
+    {
+        if ($question->type !== QuestionType::VacationDays) {
+            return [$question->label];
+        }
+
+        return [
+            $question->label.' ('.__('days').')',
+            ...$question->selectableDays()->map(fn ($day): string => $day->isoFormat('YYYY-MM-DD ddd')),
+        ];
+    }
+
+    /**
+     * @return list<Cell>
+     */
+    private function answerCells(Signup $signup, Question $question, Style $dateStyle): array
+    {
+        if ($question->type !== QuestionType::VacationDays) {
+            return [$this->answerCell($signup, $question, $dateStyle)];
+        }
+
+        $picked = array_flip((array) $signup->answerTo($question));
+
+        return [
+            Cell::fromValue(count(array_intersect_key(array_flip($question->selectableDayValues()), $picked))),
+            ...array_map(
+                fn (string $day): Cell => isset($picked[$day]) ? $this->text('x') : Cell::fromValue(null),
+                $question->selectableDayValues(),
+            ),
+        ];
     }
 
     private function answerCell(Signup $signup, Question $question, Style $dateStyle): Cell

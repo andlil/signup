@@ -31,6 +31,9 @@
                         <p class="text-sm text-stone-500">
                             {{ $question->type->label() }}
                             @if ($question->options) · {{ implode(', ', $question->options) }} @endif
+                            @if ($question->type->hasPeriod())
+                                · {{ $question->period_start->isoFormat('D MMM YYYY') }} – {{ $question->period_end->isoFormat('D MMM YYYY') }}@if ($question->weekdays_only), {{ __('weekdays only') }}@endif
+                            @endif
                             @if ($event->capacity_question_id === $question->id) · <span class="font-medium text-teal-800">{{ __('Counts as places') }}</span> @endif
                         </p>
                     </div>
@@ -98,6 +101,28 @@
                         <x-form.textarea id="optionsText" wire:model="optionsText" rows="5" />
                         <x-form.error for="optionsText" />
                     </div>
+                @endif
+
+                @if ($selectedType?->hasPeriod())
+                    <div>
+                        <x-form.label for="periodStart">{{ __('First day') }}</x-form.label>
+                        <x-form.input id="periodStart" type="date" wire:model="periodStart" />
+                        <x-form.error for="periodStart" />
+                    </div>
+
+                    <div>
+                        <x-form.label for="periodEnd">{{ __('Last day') }}</x-form.label>
+                        <x-form.input id="periodEnd" type="date" wire:model="periodEnd" />
+                        <x-form.error for="periodEnd" />
+                    </div>
+
+                    <label class="flex items-start gap-2 text-sm sm:col-span-2">
+                        <input type="checkbox" wire:model="weekdaysOnly" class="mt-0.5 rounded border-stone-300">
+                        <span>
+                            <span class="font-medium">{{ __('Show weekdays only') }}</span><br>
+                            <span class="text-stone-600">{{ __('Participants see every day of the period and tick the days they want off. With weekdays only, Saturdays and Sundays are left out.') }}</span>
+                        </span>
+                    </label>
                 @endif
 
                 @if ($selectedType?->hasRange())

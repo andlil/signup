@@ -149,6 +149,7 @@ class Signup extends Model implements HasLocalePreference
 
         return match (true) {
             $answer === null || $answer === '' || $answer === [] => '',
+            $question->type === QuestionType::VacationDays => $question->describeDays((array) $answer),
             is_array($answer) => implode(', ', $answer),
             $question->type === QuestionType::Date => Carbon::parse($answer)->isoFormat('LL'),
             default => (string) $answer,

@@ -11,6 +11,7 @@ enum QuestionType: string
     case Checkboxes = 'checkboxes';
     case Date = 'date';
     case Number = 'number';
+    case VacationDays = 'vacation_days';
 
     /**
      * Get the translated, human readable name of the type.
@@ -25,6 +26,7 @@ enum QuestionType: string
             self::Checkboxes => __('Checkboxes'),
             self::Date => __('Date'),
             self::Number => __('Number'),
+            self::VacationDays => __('Vacation planning'),
         };
     }
 
@@ -42,5 +44,13 @@ enum QuestionType: string
     public function hasRange(): bool
     {
         return $this === self::Number;
+    }
+
+    /**
+     * Determine whether the question asks which days of a period the participant picks.
+     */
+    public function hasPeriod(): bool
+    {
+        return $this === self::VacationDays;
     }
 }

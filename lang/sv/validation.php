@@ -60,6 +60,8 @@ return [
         'name' => 'namn',
         'notificationMode' => 'notiser',
         'optionsText' => 'alternativ',
+        'periodEnd' => 'sista dag',
+        'periodStart' => 'första dag',
         'retentionDays' => 'antal dagar',
         'role' => 'roll',
         'signupDeadline' => 'sista anmälningsdag',

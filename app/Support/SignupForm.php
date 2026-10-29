@@ -126,6 +126,10 @@ class SignupForm
                 $field.'.*' => ['string', 'distinct', Rule::in($question->options)],
             ],
             QuestionType::Date => [$field => [$presence, 'date_format:Y-m-d']],
+            QuestionType::VacationDays => [
+                $field => [$question->is_required ? 'required' : 'nullable', 'array', ...($question->is_required ? ['min:1'] : [])],
+                $field.'.*' => ['string', 'distinct', Rule::in($question->selectableDayValues())],
+            ],
             QuestionType::Number => [$field => array_filter([
                 $presence,
                 'integer',
@@ -170,6 +174,7 @@ class SignupForm
             $normalized[$question->id] = match ($question->type) {
                 QuestionType::Number => (int) $answer,
                 QuestionType::Checkboxes => array_values(array_intersect($question->options, $answer)),
+                QuestionType::VacationDays => array_values(array_intersect($question->selectableDayValues(), $answer)),
                 default => trim((string) $answer),
             };
         }

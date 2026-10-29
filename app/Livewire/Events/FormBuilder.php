@@ -5,6 +5,7 @@ namespace App\Livewire\Events;
 use App\Enums\QuestionType;
 use App\Models\Event;
 use App\Models\Question;
+use Carbon\CarbonImmutable;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -51,6 +52,12 @@ class FormBuilder extends Component
 
     public bool $isCapacityField = false;
 
+    public string $periodStart = '';
+
+    public string $periodEnd = '';
+
+    public bool $weekdaysOnly = false;
+
     /**
      * Only people who can edit the event may see its form builder.
      */
@@ -92,6 +99,9 @@ class FormBuilder extends Component
         $this->minValue = (string) ($question->min_value ?? '');
         $this->maxValue = (string) ($question->max_value ?? '');
         $this->isCapacityField = $this->event->capacity_question_id === $question->id;
+        $this->periodStart = $question->period_start?->toDateString() ?? '';
+        $this->periodEnd = $question->period_end?->toDateString() ?? '';
+        $this->weekdaysOnly = $question->weekdays_only;
     }
 
     /**
@@ -125,6 +135,17 @@ class FormBuilder extends Component
                 if ($this->options()->contains(fn (string $option): bool => mb_strlen($option) > 255)) {
                     $validator->errors()->add('optionsText', __('Each option can be at most 255 characters.'));
                 }
+
+                if ($type?->hasPeriod() && ! $validator->errors()->hasAny(['periodStart', 'periodEnd'])) {
+                    $start = CarbonImmutable::parse($this->periodStart);
+                    $end = CarbonImmutable::parse($this->periodEnd);
+
+                    if ($start->diffInDays($end) + 1 > Question::MAX_PERIOD_DAYS) {
+                        $validator->errors()->add('periodEnd', __('The period can be at most :days days.', ['days' => Question::MAX_PERIOD_DAYS]));
+                    } elseif ((new Question(['period_start' => $start, 'period_end' => $end, 'weekdays_only' => $this->weekdaysOnly]))->selectableDays()->isEmpty()) {
+                        $validator->errors()->add('periodEnd', __('The period has no weekdays.'));
+                    }
+                }
             });
         })->validate([
             'type' => ['required', Rule::enum(QuestionType::class)],
@@ -134,6 +155,9 @@ class FormBuilder extends Component
             'optionsText' => ['nullable', 'string', 'max:20000'],
             'minValue' => ['nullable', 'integer', 'min:'.($isCapacityField ? 1 : -1000000), 'max:1000000'],
             'maxValue' => ['nullable', 'integer', 'max:1000000', ...($this->minValue !== '' ? ['gte:minValue'] : [])],
+            'periodStart' => [...($type?->hasPeriod() ? ['required'] : ['nullable']), 'date_format:Y-m-d'],
+            'periodEnd' => [...($type?->hasPeriod() ? ['required', 'after_or_equal:periodStart'] : ['nullable']), 'date_format:Y-m-d'],
+            'weekdaysOnly' => ['boolean'],
         ]);
 
         $attributes = [
@@ -144,6 +168,9 @@ class FormBuilder extends Component
             'options' => $type->hasOptions() ? $this->options()->all() : null,
             'min_value' => $type->hasRange() ? $this->nullableInteger($validated['minValue']) ?? ($isCapacityField ? 1 : null) : null,
             'max_value' => $type->hasRange() ? $this->nullableInteger($validated['maxValue']) : null,
+            'period_start' => $type->hasPeriod() ? $validated['periodStart'] : null,
+            'period_end' => $type->hasPeriod() ? $validated['periodEnd'] : null,
+            'weekdays_only' => $type->hasPeriod() && $validated['weekdaysOnly'],
         ];
 
         DB::transaction(function () use ($attributes, $isCapacityField): void {
@@ -245,7 +272,7 @@ class FormBuilder extends Component
     private function resetEditor(): void
     {
         $this->resetValidation();
-        $this->reset('editing', 'editingId', 'type', 'label', 'helpText', 'isRequired', 'optionsText', 'minValue', 'maxValue', 'isCapacityField');
+        $this->reset('editing', 'editingId', 'type', 'label', 'helpText', 'isRequired', 'optionsText', 'minValue', 'maxValue', 'isCapacityField', 'periodStart', 'periodEnd', 'weekdaysOnly');
     }
 
     public function render(): View

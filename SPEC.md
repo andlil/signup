@@ -53,6 +53,7 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
   - kryssrutor (flera val)
   - datum
   - antal (heltal, med valfritt min- och maxvärde)
+  - semesterplanering: arrangören anger första och sista dag och om bara vardagar ska visas. Deltagaren ser en kalender med periodens dagar och markerar de dagar hen vill vara ledig, även en hel vecka åt gången. Perioden kan vara högst 366 dagar. I anmälningslistan och mejlen visas valen kompakt ("12–16 juli, 2 augusti (6 dagar)"), och i Excel-exporten får frågan en kolumn med antal dagar och en kolumn per dag. Det finns ingen gräns för hur många som kan vara lediga samma dag.
 - Varje fråga har etikett, hjälptext, kan vara obligatorisk och har en sorteringsordning.
 - **När eventet har publicerats kan frågorna inte ändras.** Formuläret är då låst. Beskrivning, datum och liknande kan fortfarande redigeras.
 
