@@ -99,7 +99,7 @@ npm install && npm run build
 ```
 
 ```bash
-php artisan migrate --seed && php artisan storage:link
+php artisan migrate --seed
 ```
 
 ```bash

@@ -8,8 +8,6 @@ use App\Livewire\Events\EventEditor;
 use App\Models\Event;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -100,9 +98,8 @@ class EventEditorTest extends TestCase
         $this->assertDatabaseEmpty('events');
     }
 
-    public function test_the_owner_can_update_an_event_and_upload_a_cover_image(): void
+    public function test_the_owner_can_update_an_event(): void
     {
-        Storage::fake('public');
         $event = Event::factory()->create(['capacity' => 10]);
 
         Livewire::actingAs($event->user)
@@ -110,7 +107,6 @@ class EventEditorTest extends TestCase
             ->assertSet('title', $event->title)
             ->set('title', 'Ny titel')
             ->set('capacity', '')
-            ->set('cover', UploadedFile::fake()->image('cover.jpg', 1200, 400))
             ->call('save')
             ->assertHasNoErrors()
             ->assertSee(__('The changes have been saved.'));
@@ -118,34 +114,6 @@ class EventEditorTest extends TestCase
         $event->refresh();
         $this->assertSame('Ny titel', $event->title);
         $this->assertNull($event->capacity);
-        Storage::disk('public')->assertExists($event->cover_image_path);
-    }
-
-    public function test_the_cover_image_can_be_removed(): void
-    {
-        Storage::fake('public');
-        $event = Event::factory()->create(['cover_image_path' => UploadedFile::fake()->image('old.jpg')->store('covers', 'public')]);
-        $oldPath = $event->cover_image_path;
-
-        Livewire::actingAs($event->user)
-            ->test(EventEditor::class, ['event' => $event])
-            ->set('removeCover', true)
-            ->call('save');
-
-        $this->assertNull($event->fresh()->cover_image_path);
-        Storage::disk('public')->assertMissing($oldPath);
-    }
-
-    public function test_only_images_are_accepted_as_cover(): void
-    {
-        Storage::fake('public');
-        $event = Event::factory()->create();
-
-        Livewire::actingAs($event->user)
-            ->test(EventEditor::class, ['event' => $event])
-            ->set('cover', UploadedFile::fake()->create('evil.svg', 10, 'image/svg+xml'))
-            ->call('save')
-            ->assertHasErrors('cover');
     }
 
     public function test_another_organizer_cannot_edit_the_event(): void

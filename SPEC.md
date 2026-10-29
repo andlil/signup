@@ -32,7 +32,7 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
 
 ## Event
 
-- Titel, beskrivning (formateras med knappar för fetstil, kursiv, rubriker, listor, citat och länkar; sparas som Markdown), omslagsbild, plats, starttid och sluttid
+- Titel, beskrivning (formateras med knappar för fetstil, kursiv, rubriker, listor, citat och länkar; sparas som Markdown), plats, starttid och sluttid
 - Eventet måste ha en starttid, en sista anmälningsdag eller båda. En sluttid kräver en starttid. Utan starttid (t.ex. en förfrågan om semesterdatum) räknas avbokning och gallring från sista anmälningsdagen.
 - Publik länk med en slumpad slug: `/e/{slug}`
 - Status: utkast → publicerat → stängt

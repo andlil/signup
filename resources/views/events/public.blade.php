@@ -6,10 +6,6 @@
             </div>
         @endif
 
-        @if ($event->coverImageUrl())
-            <img src="{{ $event->coverImageUrl() }}" alt="" class="mb-6 aspect-[3/1] w-full rounded-lg object-cover">
-        @endif
-
         <h1 class="text-3xl font-semibold tracking-tight">{{ $event->title }}</h1>
 
         <dl class="mt-4 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-[auto_1fr]">

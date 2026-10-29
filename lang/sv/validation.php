@@ -48,7 +48,6 @@ return [
     'attributes' => [
         'capacity' => 'antal platser',
         'consent' => 'samtycke',
-        'cover' => 'omslagsbild',
         'description' => 'beskrivning',
         'email' => 'e-post',
         'endsAt' => 'slut',

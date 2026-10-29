@@ -17,9 +17,8 @@ FROM php:8.3-apache
 # Build the PHP extensions, then keep only the runtime libraries they link against.
 RUN savedAptMark="$(apt-mark showmanual)" \
     && apt-get update \
-    && apt-get install -y --no-install-recommends libicu-dev libzip-dev libpng-dev libjpeg62-turbo-dev libfreetype-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install -j"$(nproc)" bcmath gd intl opcache pcntl pdo_mysql zip \
+    && apt-get install -y --no-install-recommends libicu-dev libzip-dev \
+    && docker-php-ext-install -j"$(nproc)" bcmath intl opcache pcntl pdo_mysql zip \
     && apt-mark auto '.*' > /dev/null \
     && apt-mark manual $savedAptMark > /dev/null \
     && find /usr/local/lib/php/extensions -type f -name '*.so' -exec ldd '{}' ';' \
@@ -43,7 +42,6 @@ COPY . .
 COPY --from=assets /app/public/build ./public/build
 
 RUN composer dump-autoload --optimize --no-dev --no-interaction \
-    && ln -s ../storage/app/public public/storage \
     && chown -R www-data:www-data storage bootstrap/cache
 
 COPY docker/entrypoint.sh /usr/local/bin/signup-entrypoint

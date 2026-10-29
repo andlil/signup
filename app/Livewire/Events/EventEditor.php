@@ -7,19 +7,14 @@ use App\Models\Event;
 use App\Services\SignupService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
-use Livewire\WithFileUploads;
 
 #[Layout('components.layouts.app')]
 class EventEditor extends Component
 {
-    use WithFileUploads;
-
     /**
      * The format of the browser's datetime-local inputs.
      */
@@ -45,10 +40,6 @@ class EventEditor extends Component
     public string $notificationMode = NotificationMode::EachSignup->value;
 
     public int $retentionDays = 30;
-
-    public ?TemporaryUploadedFile $cover = null;
-
-    public bool $removeCover = false;
 
     public ?string $status = null;
 
@@ -96,7 +87,6 @@ class EventEditor extends Component
             'capacity' => ['nullable', 'integer', 'min:1', 'max:100000'],
             'notificationMode' => ['required', Rule::enum(NotificationMode::class)],
             'retentionDays' => ['required', 'integer', 'min:1', 'max:3650'],
-            'cover' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
         ], [
             'startsAt.required_without' => __('Enter when the event starts, a last day to sign up, or both.'),
             'signupDeadline.required_without' => __('Enter when the event starts, a last day to sign up, or both.'),
@@ -119,18 +109,11 @@ class EventEditor extends Component
         $event = $this->event ?? auth()->user()->events()->make();
         $event->fill($attributes);
 
-        if ($this->cover !== null || $this->removeCover) {
-            $this->deleteCoverFile($event);
-            $event->cover_image_path = $this->cover?->store('covers', 'public');
-        }
-
         $event->save();
 
         if (! $isNew && $event->wasChanged('capacity')) {
             $signups->promoteWaitlist($event);
         }
-
-        $this->reset('cover', 'removeCover');
 
         if ($isNew) {
             session()->flash('status', __('The event has been created. Now add the questions for the signup form.'));
@@ -151,22 +134,11 @@ class EventEditor extends Component
     {
         Gate::authorize('delete', $this->event);
 
-        $this->deleteCoverFile($this->event);
         $this->event->delete();
 
         session()->flash('status', __('The event has been deleted.'));
 
         $this->redirectRoute('dashboard', navigate: false);
-    }
-
-    /**
-     * Remove the event's current cover image from storage.
-     */
-    private function deleteCoverFile(Event $event): void
-    {
-        if ($event->cover_image_path !== null) {
-            Storage::disk('public')->delete($event->cover_image_path);
-        }
     }
 
     public function render(): View

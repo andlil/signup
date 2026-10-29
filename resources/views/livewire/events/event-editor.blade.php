@@ -25,26 +25,6 @@
                 <x-form.markdown-editor id="description" property="description" />
                 <x-form.error for="description" />
             </div>
-
-            <div>
-                <x-form.label for="cover">{{ __('Cover image') }}</x-form.label>
-                @if ($cover)
-                    <img src="{{ $cover->temporaryUrl() }}" alt="" class="mt-2 aspect-[3/1] w-full max-w-lg rounded-md object-cover">
-                @elseif ($event?->coverImageUrl() && ! $removeCover)
-                    <img src="{{ $event->coverImageUrl() }}" alt="" class="mt-2 aspect-[3/1] w-full max-w-lg rounded-md object-cover">
-                @endif
-                <input id="cover" type="file" wire:model="cover" accept="image/jpeg,image/png,image/webp"
-                    class="mt-2 block text-sm file:mr-3 file:rounded-md file:border file:border-stone-300 file:bg-white file:px-3 file:py-1.5 file:text-sm file:font-medium hover:file:bg-stone-50">
-                <p class="mt-1 text-sm text-stone-500">{{ __('JPG, PNG or WebP, at most 5 MB.') }}</p>
-                <div wire:loading wire:target="cover" class="mt-1 text-sm text-stone-500">{{ __('Uploading…') }}</div>
-                @if ($event?->cover_image_path && ! $cover)
-                    <label class="mt-2 flex items-center gap-2 text-sm">
-                        <input type="checkbox" wire:model.live="removeCover" class="rounded border-stone-300">
-                        {{ __('Remove the cover image') }}
-                    </label>
-                @endif
-                <x-form.error for="cover" />
-            </div>
         </section>
 
         <section class="grid gap-4 rounded-lg border border-stone-200 bg-white p-5 sm:grid-cols-2">
@@ -117,7 +97,7 @@
         </section>
 
         <div class="flex flex-wrap items-center justify-between gap-3">
-            <x-button wire:loading.attr="disabled" wire:target="save,cover">
+            <x-button wire:loading.attr="disabled" wire:target="save">
                 {{ $event ? __('Save changes') : __('Create event') }}
             </x-button>
 

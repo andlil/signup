@@ -13,7 +13,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\HtmlString;
 use Illuminate\Support\Str;
 
@@ -244,16 +243,6 @@ class Event extends Model
     public function reopen(): void
     {
         $this->forceFill(['status' => EventStatus::Published])->save();
-    }
-
-    /**
-     * Get the public URL of the cover image, if there is one.
-     */
-    public function coverImageUrl(): ?string
-    {
-        return $this->cover_image_path === null
-            ? null
-            : Storage::disk('public')->url($this->cover_image_path);
     }
 
     /**
