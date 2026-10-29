@@ -60,6 +60,22 @@ MAIL_FROM_ADDRESS="signup@example.com"
 
 Mejlen skickas via kön. Det är därför tjänsten `queue` måste vara igång.
 
+### Postmark, Resend eller Amazon SES
+
+Använd tjänsternas SMTP-gränssnitt med `MAIL_MAILER=smtp` och uppgifterna nedan:
+
+| Tjänst | `MAIL_HOST` | `MAIL_PORT` | `MAIL_USERNAME` | `MAIL_PASSWORD` |
+|---|---|---|---|---|
+| Postmark | `smtp.postmarkapp.com` | 587 | Server API token | Server API token |
+| Resend | `smtp.resend.com` | 587 | `resend` | API-nyckel |
+| Amazon SES | `email-smtp.<region>.amazonaws.com` | 587 | SMTP-användarnamn | SMTP-lösenord |
+
+För SES skapar du SMTP-uppgifterna i SES-konsolen. Det är inte samma sak som vanliga AWS-nycklar.
+
+`MAIL_FROM_ADDRESS` måste höra till en domän som är verifierad hos tjänsten, annars nekas mejlen.
+
+Sätt inte `MAIL_MAILER=postmark`, `resend` eller `ses`. De drivrutinerna kräver extra PHP-paket som inte är installerade, så då skickas inga mejl alls.
+
 ## Schemalagda jobb
 
 Tjänsten `scheduler` kör följande jobb (tiderna gäller `APP_TIMEZONE`, som standard Europe/Stockholm):
