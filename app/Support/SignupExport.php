@@ -123,7 +123,7 @@ class SignupExport
 
         return [
             $question->label.' ('.__('days').')',
-            ...$question->selectableDays()->map(fn ($day): string => $day->isoFormat('YYYY-MM-DD ddd')),
+            ...$question->selectableDays()->map(fn ($day): string => $day->toDateString()),
         ];
     }
 

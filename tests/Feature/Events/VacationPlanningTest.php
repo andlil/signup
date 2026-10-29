@@ -161,8 +161,8 @@ class VacationPlanningTest extends TestCase
 
         $headings = array_slice($rows[0], 4, 11);
         $this->assertSame('Semester (dagar)', $headings[0]);
-        $this->assertStringStartsWith('2027-07-05', $headings[1]);
-        $this->assertStringStartsWith('2027-07-16', $headings[10]);
+        $this->assertSame('2027-07-05', $headings[1]);
+        $this->assertSame('2027-07-16', $headings[10]);
 
         $answers = array_slice($rows[1], 4, 11);
         $this->assertSame(2, $answers[0]);
