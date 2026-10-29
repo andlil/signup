@@ -39,4 +39,27 @@ class CreateAdminCommandTest extends TestCase
 
         $this->assertDatabaseEmpty('users');
     }
+
+    public function test_with_if_none_it_creates_the_first_admin(): void
+    {
+        $this->artisan('signup:create-admin', ['email' => 'first@example.com', '--name' => '', '--if-none' => true])
+            ->assertSuccessful();
+
+        $admin = User::query()->where('email', 'first@example.com')->firstOrFail();
+        $this->assertSame(Role::Admin, $admin->role);
+        $this->assertSame('first@example.com', $admin->name);
+    }
+
+    public function test_with_if_none_it_leaves_existing_admins_alone(): void
+    {
+        User::factory()->admin()->create(['email' => 'current@example.com']);
+        $organizer = User::factory()->create(['email' => 'organizer@example.com']);
+
+        $this->artisan('signup:create-admin', ['email' => 'organizer@example.com', '--if-none' => true])
+            ->expectsOutput('A main admin already exists, nothing to do.')
+            ->assertSuccessful();
+
+        $this->assertSame(Role::Organizer, $organizer->fresh()->role);
+        $this->assertSame(1, User::query()->where('role', Role::Admin)->count());
+    }
 }

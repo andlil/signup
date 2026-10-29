@@ -6,7 +6,7 @@ Byggd med Laravel 13, Livewire 4 och MariaDB. Körs med Docker Compose.
 
 ## Kom igång med Docker
 
-1. Skapa konfigurationen och sätt ett eget databaslösenord (`DB_PASSWORD`) i `.env`:
+1. Skapa konfigurationen. Sätt sedan ett eget databaslösenord (`DB_PASSWORD`) i `.env`, och din e-postadress i `ADMIN_EMAIL` (och gärna ditt namn i `ADMIN_NAME`):
 
    ```bash
    cp .env.example .env
@@ -22,19 +22,19 @@ Byggd med Laravel 13, Livewire 4 och MariaDB. Körs med Docker Compose.
    docker compose run --rm --no-deps --entrypoint php app artisan key:generate --show
    ```
 
-3. Starta allt (app, databas, kö-arbetare och schemaläggare). Migreringarna körs automatiskt:
+3. Starta allt (app, databas, kö-arbetare och schemaläggare). Migreringarna körs automatiskt, och huvudadmin skapas från `ADMIN_EMAIL`:
 
    ```bash
    docker compose up -d
    ```
 
-4. Skapa huvudadmin:
+4. Gå till http://localhost:8080 och logga in med din e-postadress.
 
-   ```bash
-   docker compose exec -u www-data app php artisan signup:create-admin du@example.com --name="Ditt namn"
-   ```
+Huvudadmin skapas bara om det inte redan finns någon, så det gör inget att `ADMIN_EMAIL` ligger kvar i `.env`. Vill du göra ett befintligt konto till huvudadmin senare kör du:
 
-5. Gå till http://localhost:8080 och logga in med din e-postadress.
+```bash
+docker compose exec -u www-data app php artisan signup:create-admin du@example.com --name="Ditt namn"
+```
 
 Porten styrs av `APP_PORT` i `.env`. Sätt `APP_URL` till den adress appen nås på, eftersom den används i länkarna i mejlen.
 I produktion bör du även sätta `APP_ENV=production` och `APP_DEBUG=false`.

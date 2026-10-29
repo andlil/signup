@@ -9,7 +9,7 @@ use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Validator;
 
-#[Signature('signup:create-admin {email : The email address the admin logs in with} {--name= : The admin\'s name}')]
+#[Signature('signup:create-admin {email : The email address the admin logs in with} {--name= : The admin\'s name} {--if-none : Do nothing if a main admin already exists}')]
 #[Description('Create the main admin account, or promote an existing account to main admin')]
 class CreateAdmin extends Command
 {
@@ -26,11 +26,17 @@ class CreateAdmin extends Command
             return self::FAILURE;
         }
 
+        if ($this->option('if-none') && User::query()->where('role', Role::Admin)->exists()) {
+            $this->line('A main admin already exists, nothing to do.');
+
+            return self::SUCCESS;
+        }
+
         $user = User::query()->firstOrNew(['email' => $email]);
         $wasExisting = $user->exists;
 
         $user->forceFill([
-            'name' => $this->option('name') ?? $user->name ?? $email,
+            'name' => $this->option('name') ?: $user->name ?? $email,
             'role' => Role::Admin,
             'is_active' => true,
         ])->save();

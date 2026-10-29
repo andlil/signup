@@ -27,6 +27,11 @@ if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
         echo "Waiting for the database..."
         sleep 2
     done
+
+    # Create the first main admin from .env. Once any main admin exists this does nothing.
+    if [ -n "${ADMIN_EMAIL:-}" ]; then
+        as_www_data php artisan signup:create-admin "$ADMIN_EMAIL" --name="${ADMIN_NAME:-}" --if-none --no-interaction
+    fi
 fi
 
 as_www_data php artisan optimize --no-interaction > /dev/null
