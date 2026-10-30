@@ -80,6 +80,7 @@ Tjänsten `scheduler` kör följande jobb (tiderna gäller `APP_TIMEZONE`, som s
 
 | Tid | Jobb |
 |-----|------|
+| Var 15:e minut | `signup:send-closing-exports`: mejlar Excel-filen med anmälningarna till arrangören när anmälan har stängt |
 | 07:00 | `signup:send-daily-summaries`: daglig sammanfattning till arrangörer som har valt det |
 | 03:00 | `signup:delete-expired-signups`: raderar anmälningar när eventets gallringstid har gått ut (GDPR) |
 | 03:30 | `model:prune`: rensar utgångna inloggningslänkar |

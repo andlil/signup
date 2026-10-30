@@ -85,6 +85,7 @@ Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
 
 ## Bakgrundsjobb (scheduler)
 
+- När anmälan stänger (vid sista anmälningsdag eller vid starten, det som kommer först) mejlas Excel-filen automatiskt till arrangören, en gång per event. Event som stängde för mer än två dagar sedan hoppas över.
 - Daglig sammanfattning kl. 07 till de arrangörer som har valt det: ett mejl per arrangör med nya anmälningar och avbokningar sedan förra sammanfattningen. Inget mejl skickas om inget har hänt.
 - Radering av anmälningar för event som slutade för mer än X dagar sedan
 - Rensning av utgångna magic link-token

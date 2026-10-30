@@ -21,7 +21,7 @@ class ScheduledTasksTest extends TestCase
     {
         $commands = collect(app(Schedule::class)->events())->map(fn ($event): string => $event->command);
 
-        foreach (['signup:send-daily-summaries', 'signup:delete-expired-signups', 'model:prune'] as $command) {
+        foreach (['signup:send-closing-exports', 'signup:send-daily-summaries', 'signup:delete-expired-signups', 'model:prune'] as $command) {
             $this->assertTrue($commands->contains(fn (string $scheduled): bool => str_contains($scheduled, $command)), "{$command} is not scheduled");
         }
     }

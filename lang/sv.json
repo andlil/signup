@@ -1,5 +1,6 @@
 {
     ":count cancellation|:count cancellations": ":count avbokning|:count avbokningar",
+    ":count confirmed signup|:count confirmed signups": ":count bekräftad anmälan|:count bekräftade anmälningar",
     ":count day|:count days": ":count dag|:count dagar",
     ":count new signup|:count new signups": ":count ny anmälan|:count nya anmälningar",
     ":count on the waiting list|:count on the waiting list": ":count på väntelistan|:count på väntelistan",
@@ -172,8 +173,11 @@
     "Signup form": "Anmälningsformulär",
     "Signup link": "Länk för anmälan",
     "Signups": "Anmälningar",
+    "Signups for :event closed :date. The Excel file with all signups is attached.": "Anmälan till :event stängde :date. Excel-filen med alla anmälningar är bifogad.",
+    "Signups for :event have closed": "Anmälan till :event har stängt",
     "Signups for the event are closed, so the answers can no longer be changed.": "Anmälan till eventet är stängd, så svaren kan inte längre ändras.",
     "Signups for this event are closed.": "Anmälan till det här eventet är stängd.",
+    "Signups have closed": "Anmälan har stängt",
     "Signups since yesterday": "Anmälningar sedan i går",
     "Starts": "Börjar",
     "Status": "Status",

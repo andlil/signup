@@ -69,6 +69,7 @@ class Event extends Model
             'allow_late_cancellation' => 'boolean',
             'published_at' => 'datetime',
             'summary_sent_at' => 'datetime',
+            'export_sent_at' => 'datetime',
             'capacity' => 'integer',
             'retention_days' => 'integer',
             'status' => EventStatus::class,
@@ -203,6 +204,16 @@ class Event extends Model
         ]);
 
         return $limits === [] ? null : min($limits);
+    }
+
+    /**
+     * Get the moment signups close by themselves: the signup deadline or the start, whichever comes first.
+     */
+    public function signupsCloseAt(): ?Carbon
+    {
+        $moments = array_filter([$this->signup_deadline, $this->starts_at]);
+
+        return $moments === [] ? null : min($moments);
     }
 
     /**
