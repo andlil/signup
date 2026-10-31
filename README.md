@@ -37,7 +37,33 @@ docker compose exec -u www-data app php artisan signup:create-admin du@example.c
 Porten styrs av `APP_PORT` i `.env`. Sätt `APP_URL` till den adress appen nås på, eftersom den används i länkarna i mejlen.
 I produktion bör du även sätta `APP_ENV=production` och `APP_DEBUG=false`.
 
-## E-post
+## Bakom en reverse proxy
+
+Lägg serverspecifika inställningar, som etiketter och nätverk för din proxy, i `docker-compose.override.yml`. Docker Compose läser in filen automatiskt, och den är undantagen i `.gitignore`. Exempel för Traefik:
+
+```yaml
+services:
+  app:
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.signup.rule=Host(`signup.example.com`)
+      - traefik.http.routers.signup.entrypoints=websecure
+      - traefik.http.routers.signup.tls.certresolver=letsencrypt
+      - traefik.http.services.signup.loadbalancer.server.port=80
+      - traefik.docker.network=proxy
+    networks:
+      - default
+      - proxy
+    ports: !reset []
+
+networks:
+  proxy:
+    external: true
+```
+
+Sätt `APP_URL` till den publika adressen (`https://signup.example.com`). Appen litar på `X-Forwarded-*`-huvuden från Dockers privata nätverk, så att länkar och Livewire använder https. Ligger proxyn någon annanstans anger du dess adress i `TRUSTED_PROXIES`.
+
+
 
 Som standard (`MAIL_MAILER=log`) skickas inga mejl. De skrivs i stället till `storage/logs/laravel.log`, så att du kan hämta inloggningslänkarna där:
 

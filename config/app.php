@@ -93,6 +93,19 @@ return [
     |
     */
 
+    /*
+    |--------------------------------------------------------------------------
+    | Trusted Proxies
+    |--------------------------------------------------------------------------
+    |
+    | The reverse proxies whose X-Forwarded-* headers are trusted, as a comma
+    | separated list of addresses or ranges, or "*" for any. The default
+    | covers the private networks Docker puts containers on.
+    |
+    */
+
+    'trusted_proxies' => env('TRUSTED_PROXIES', '10.0.0.0/8,172.16.0.0/12,192.168.0.0/16'),
+
     'supported_locales' => [
         'sv' => 'Svenska',
         'en' => 'English',
