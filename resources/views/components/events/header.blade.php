@@ -14,7 +14,7 @@
 
     <div class="mt-2 flex flex-wrap items-center gap-3">
         <h1 class="text-2xl font-semibold tracking-tight">{{ $event->title }}</h1>
-        <x-events.status-badge :status="$event->status" />
+        <x-events.badges :event="$event" />
     </div>
 
     <div class="mt-4 rounded-lg border border-stone-200 bg-white p-4">

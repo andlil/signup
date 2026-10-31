@@ -183,6 +183,20 @@ class Event extends Model
     }
 
     /**
+     * Explain why a published event no longer accepts signups, or null when it does.
+     */
+    public function signupsClosedReason(): ?string
+    {
+        return match (true) {
+            $this->status === EventStatus::Draft => null,
+            $this->status === EventStatus::Closed => __('Closed by the organizer'),
+            $this->hasStarted() => __('The event has started'),
+            $this->deadlineHasPassed() => __('The last day to sign up was :date', ['date' => $this->signup_deadline->isoFormat('LLL')]),
+            default => null,
+        };
+    }
+
+    /**
      * Determine whether the event has a start that has passed.
      */
     public function hasStarted(): bool

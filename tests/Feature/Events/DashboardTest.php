@@ -35,4 +35,27 @@ class DashboardTest extends TestCase
             ->assertSee('Ceciliasevent')
             ->assertSee('Cecilia');
     }
+
+    public function test_published_events_show_whether_signups_are_open(): void
+    {
+        $organizer = User::factory()->create();
+        Event::factory()->for($organizer)->create(['title' => 'Utkastet']);
+        Event::factory()->for($organizer)->published()->create(['title' => 'Öppet']);
+        Event::factory()->for($organizer)->published()->create(['title' => 'Passerat', 'signup_deadline' => now()->subDay()]);
+        Event::factory()->for($organizer)->closed()->create(['title' => 'Stängt för hand']);
+
+        $response = $this->withSession(['locale' => 'sv'])->actingAs($organizer)->get(route('dashboard'))->assertOk();
+
+        $rows = collect(explode('<li>', $response->getContent()))->mapWithKeys(fn (string $row): array => [
+            collect(['Utkastet', 'Öppet', 'Passerat', 'Stängt för hand'])->first(fn (string $title): bool => str_contains($row, $title)) ?? '' => $row,
+        ]);
+
+        $this->assertStringContainsString('Utkast', $rows['Utkastet']);
+        $this->assertStringNotContainsString('Anmälan', $rows['Utkastet']);
+        $this->assertStringContainsString('Anmälan öppen', $rows['Öppet']);
+        $this->assertStringContainsString('Anmälan stängd', $rows['Passerat']);
+        $this->assertStringContainsString('Sista anmälningsdag var', $rows['Passerat']);
+        $this->assertStringContainsString('Anmälan stängd', $rows['Stängt för hand']);
+        $this->assertStringContainsString('Stängd av arrangören', $rows['Stängt för hand']);
+    }
 }

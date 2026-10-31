@@ -33,7 +33,7 @@
                                 · {{ trans_choice(':count on the waiting list|:count on the waiting list', $event->waitlisted_count) }}
                             @endif
                         </span>
-                        <x-events.status-badge :status="$event->status" />
+                        <x-events.badges :event="$event" />
                     </a>
                 </li>
             @endforeach
