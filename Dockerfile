@@ -30,6 +30,7 @@ RUN savedAptMark="$(apt-mark showmanual)" \
 RUN a2enmod rewrite headers \
     && sed -ri 's!/var/www/html!/var/www/html/public!g' /etc/apache2/sites-available/000-default.conf \
     && sed -ri 's!AllowOverride None!AllowOverride All!g' /etc/apache2/apache2.conf \
+    && sed -ri "s#^(\s*)CustomLog (\S+) combined#\1SetEnvIfExpr \"%{REQUEST_URI} == '/up' \&\& (-R '127.0.0.1' || -R '::1')\" healthcheck\n\1CustomLog \2 combined env=!healthcheck#" /etc/apache2/sites-available/000-default.conf \
     && mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
 
 COPY docker/php.ini "$PHP_INI_DIR/conf.d/signup.ini"
