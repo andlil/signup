@@ -37,7 +37,27 @@ Built with Laravel 13, Livewire 4 and MariaDB. Runs with Docker Compose. The int
 
 4. Go to http://localhost:8080 and log in with your email address.
 
-The application key (`APP_KEY`) is generated on the first start and kept in the storage volume (`storage/app/private/app-key`). Include the volume in your backups: without the key, participants' personal links stop working. If you would rather manage the key yourself, set `APP_KEY` in `.env` and it is used instead.
+### The application key
+
+The application key (`APP_KEY`) encrypts sessions and the personal links participants use to change or cancel their signup. If the key changes, everyone is logged out and existing personal links stop working.
+
+**Leave `APP_KEY` empty in `.env` (recommended).** The app container then generates a key on the first start and keeps it in the storage volume, in `storage/app/private/app-key`. The queue worker and scheduler read the same file. Include the `storage` volume in your backups: it holds the key.
+
+**Or set the key yourself** in `.env`; it is then used instead of the generated one. The value must be `base64:` followed by 32 random bytes in base64, 51 characters in all and ending in `=`. Do not make one up; use one of the commands below.
+
+- To keep the key the app already generated, which keeps existing links working, copy it from the volume:
+
+  ```bash
+  docker compose run --rm --no-deps --entrypoint cat app storage/app/private/app-key
+  ```
+
+- To create a new key (existing personal links stop working):
+
+  ```bash
+  docker compose run --rm --no-deps --entrypoint php app artisan key:generate --show
+  ```
+
+Copy the whole line, including `base64:`, then apply it with `docker compose up -d`. If the key is malformed, the containers do not start and `docker compose logs app` explains how to fix it.
 
 The main admin is only created when there is none yet, so `ADMIN_EMAIL` can stay in `.env`. To make an existing account main admin later, run:
 
