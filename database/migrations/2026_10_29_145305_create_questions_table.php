@@ -21,6 +21,9 @@ return new class extends Migration
             $table->json('options')->nullable();
             $table->integer('min_value')->nullable();
             $table->integer('max_value')->nullable();
+            $table->date('period_start')->nullable();
+            $table->date('period_end')->nullable();
+            $table->boolean('weekdays_only')->default(false);
             $table->unsignedInteger('position');
             $table->timestamps();
 

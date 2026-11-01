@@ -17,16 +17,18 @@ return new class extends Migration
             $table->string('slug', 32)->unique();
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('cover_image_path')->nullable();
             $table->string('location')->nullable();
-            $table->dateTime('starts_at');
+            $table->dateTime('starts_at')->nullable();
             $table->dateTime('ends_at')->nullable();
             $table->dateTime('signup_deadline')->nullable();
+            $table->boolean('allow_late_cancellation')->default(false);
             $table->unsignedInteger('capacity')->nullable();
             $table->unsignedBigInteger('capacity_question_id')->nullable();
             $table->string('status')->default('draft');
             $table->timestamp('published_at')->nullable();
             $table->string('notification_mode')->default('each_signup');
+            $table->timestamp('summary_sent_at')->nullable();
+            $table->timestamp('export_sent_at')->nullable();
             $table->unsignedSmallInteger('retention_days')->default(30);
             $table->timestamps();
 
