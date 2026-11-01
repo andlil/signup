@@ -31,6 +31,19 @@ if [ -z "${APP_KEY:-}" ]; then
     export APP_KEY
 fi
 
+# Stop with a clear message instead of failing every request when the key is malformed.
+if ! php -r '$key = getenv("APP_KEY"); if (str_starts_with($key, "base64:")) { $key = base64_decode(substr($key, 7), true); } exit(is_string($key) && strlen($key) === 32 ? 0 : 1);'; then
+    cat >&2 <<'MESSAGE'
+APP_KEY is not a valid key. It must be "base64:" followed by 32 random bytes in base64, 51 characters in all.
+Either copy the generated key, including "base64:", from the storage volume:
+    docker compose run --rm --no-deps --entrypoint cat app storage/app/private/app-key
+or create a new one (existing personal links stop working):
+    docker compose run --rm --no-deps --entrypoint php app artisan key:generate --show
+or leave APP_KEY empty in .env to use the generated key automatically.
+MESSAGE
+    exit 1
+fi
+
 if [ "${RUN_MIGRATIONS:-false}" = "true" ]; then
     attempts=0
     until as_www_data php artisan migrate --force --no-interaction; do
