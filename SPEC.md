@@ -1,97 +1,98 @@
-# signup – kravspecifikation
+# signup – requirements specification
 
-Self-hostad webbapp för anmälan till event (t.ex. semester, fest, kurs) via en
-unik länk per event. Ungefär som Google Forms, men med platser, väntelista och
-Excel-export.
+A self-hosted web app for signing up to events (for example a vacation, a party
+or a course) through a unique link per event. Roughly like Google Forms, but with
+places, a waiting list and Excel export.
 
-## Teknik
+## Technology
 
 - Laravel (PHP 8.3+), MySQL/MariaDB
-- Blade + Livewire för gränssnittet
-- Docker / docker-compose: `app` (PHP + Apache), `db` (MariaDB), `queue` (kö-arbetare), `scheduler`
-- E-post via Laravels mail-konfiguration i `.env` (`MAIL_MAILER=log` under utveckling, SMTP eller tjänst senare)
-- Gränssnitt på svenska och engelska (`lang/sv`, `lang/en`)
-- Excel-export med `.xlsx`
+- Blade + Livewire for the interface
+- Docker / docker-compose: `app` (PHP + Apache), `db` (MariaDB), `queue` (queue worker), `scheduler`
+- Email through Laravel's mail configuration in `.env` (`MAIL_MAILER=log` during development, SMTP in production)
+- Interface and emails in Swedish and English (English source strings, Swedish in `lang/sv.json` and `lang/sv/`)
+- Excel export as `.xlsx`
 
-## Roller
+## Roles
 
-| Roll        | Beskrivning |
-|-------------|-------------|
-| Huvudadmin  | Skapar, inaktiverar och raderar arrangörskonton. Har full insyn i och kan redigera och radera alla event. |
-| Arrangör    | Loggar in med magic link. Skapar och hanterar sina egna event. |
-| Deltagare   | Har inget konto. Anmäler sig via eventets publika länk. |
+| Role         | Description |
+|--------------|-------------|
+| Main admin   | Creates, deactivates and deletes organizer accounts. Can see, edit and delete all events. |
+| Organizer    | Logs in with a magic link. Creates and manages their own events. |
+| Participant  | Has no account. Signs up through the event's public link. |
 
-Den första huvudadmin skapas med kommandot `php artisan signup:create-admin`.
+The first main admin is created from `ADMIN_EMAIL` in `.env` when the app starts, if there is no main admin yet, or with the command `php artisan signup:create-admin`.
 
-## Inloggning (magic link)
+## Login (magic link)
 
-- Arrangören anger sin e-post och får ett mejl med en engångslänk.
-- Länken är giltig i 15 minuter och kan bara användas en gång.
-- Bara konton som huvudadmin har skapat och som är aktiva kan logga in. Svaret är detsamma oavsett om e-posten finns, så att man inte kan ta reda på vilka konton som existerar.
-- Inloggningsförsöken är rate-limitade.
+- The organizer enters their email address and receives an email with a one-time link.
+- The link is valid for 15 minutes and can only be used once.
+- Only active accounts created by the main admin can log in. The response is the same whether or not the email address exists, so nobody can find out which accounts exist.
+- Login attempts are rate limited.
 
-## Event
+## Events
 
-- Titel, beskrivning (formateras med knappar för fetstil, kursiv, rubriker, listor, citat och länkar; sparas som Markdown), plats, starttid och sluttid
-- Eventet måste ha en starttid, en sista anmälningsdag eller båda. En sluttid kräver en starttid. Utan starttid (t.ex. en förfrågan om semesterdatum) räknas gallringen från sista anmälningsdagen.
-- Publik länk med en slumpad slug: `/e/{slug}`
-- Status: utkast → publicerat → stängt
-- Sista anmälningsdag (valfri). Efter den är formuläret stängt. Anmälan stängs alltid när eventet börjar.
-- Max antal platser (valfritt). Arrangören väljer räknesätt per event:
-  - en plats per anmälan, eller
-  - via ett valt antal-fält i formuläret (t.ex. "antal personer")
-- Väntelista när eventet är fullt
-- Notiser till arrangören, valbara per event: vid varje anmälan/avbokning, daglig sammanfattning eller inga
-- GDPR: antal dagar efter eventets slut innan anmälningarna raderas automatiskt (t.ex. 30 dagar som standard)
+- Title, description (formatted with buttons for bold, italic, headings, lists, quotes and links; stored as Markdown), location, start and end
+- An event must have a start, a last day to sign up, or both. An end requires a start. Without a start (for example a poll about vacation dates), retention is counted from the last day to sign up.
+- Public link with a random slug: `/e/{slug}`
+- Status: draft → published. A published event can be closed for signups by hand and reopened.
+- Last day to sign up (optional). After it the form is closed. Signups always close when the event starts.
+- The overview shows for each published event whether signups are open or closed, and why.
+- Maximum number of places (optional). The organizer chooses per event how places are counted:
+  - one place per signup, or
+  - from a chosen number question in the form (for example "number of people")
+- Waiting list when the event is full
+- Notifications to the organizer, chosen per event: on every signup/cancellation, a daily summary, or none
+- GDPR: the number of days after the event before signups are deleted automatically (30 days by default)
 
-## Formulärbyggare
+## Form builder
 
-- Fältet **Namn** och fältet **E-post** finns alltid och är obligatoriska.
-- Arrangören kan lägga till egna frågor av följande typer:
-  - kort text, lång text
-  - flerval (radioknappar), rullgardin
-  - kryssrutor (flera val)
-  - datum
-  - antal (heltal, med valfritt min- och maxvärde)
-  - semesterplanering: arrangören anger första och sista dag och om bara vardagar ska visas. Deltagaren ser en kalender med periodens dagar och markerar de dagar hen vill vara ledig, även en hel vecka åt gången. Perioden kan vara högst 366 dagar. I anmälningslistan och mejlen visas valen kompakt ("12–16 juli, 2 augusti (6 dagar)"), och i Excel-exporten får frågan en kolumn med antal dagar och en kolumn per dag. Det finns ingen gräns för hur många som kan vara lediga samma dag.
-- Varje fråga har etikett, hjälptext, kan vara obligatorisk och har en sorteringsordning.
-- **När eventet har publicerats kan frågorna inte ändras.** Formuläret är då låst. Beskrivning, datum och liknande kan fortfarande redigeras.
+- The fields **Name** and **Email** are always included and required.
+- The organizer can add their own questions of these types:
+  - short text, long text
+  - multiple choice (radio buttons), dropdown
+  - checkboxes (several choices)
+  - date
+  - number (integer, with optional minimum and maximum)
+  - vacation planning: the organizer sets the first and last day and whether to show weekdays only. The participant sees a calendar of the period's days and ticks the days they want off, also a whole week at a time. The period can be at most 366 days. In the signup list and in emails the choices are shown compactly ("12–16 July, 2 August (6 days)"), and in the Excel export the question gets a column with the number of days and one column per day. There is no limit on how many people can be off on the same day.
+- Every question has a label and help text, can be required, and has a sort order.
+- **Once the event is published, the questions cannot be changed.** The form is then locked. The description, dates and similar can still be edited.
 
-## Anmälan (deltagare)
+## Signing up (participants)
 
-- Deltagaren fyller i formuläret och kryssar i samtyckesrutan (obligatoriskt).
-- Om det finns plats bekräftas anmälan, annars hamnar deltagaren på väntelistan (deltagaren ser vilket som gäller).
-- Deltagaren får ett bekräftelsemejl med en personlig hemlig länk där anmälan kan ändras eller avbokas.
-- Ändringar är möjliga fram till sista anmälningsdag.
-- Avbokning är som standard möjlig fram till sista anmälningsdag, eller fram till starten om eventet börjar tidigare.
-- Arrangören kan välja att tillåta avbokning efter sista anmälningsdag. Då går det att avboka fram till eventets start, eller utan tidsgräns om eventet saknar starttid.
-- Arrangören kan alltid avboka en anmälan.
+- The participant fills in the form and ticks the consent box (required).
+- If there is room the signup is confirmed, otherwise the participant goes on the waiting list (the participant sees which).
+- The participant receives a confirmation email with a personal secret link where the signup can be changed or cancelled.
+- Changes are possible until the last day to sign up.
+- By default, cancelling is possible until the last day to sign up, or until the start if the event starts earlier.
+- The organizer can choose to allow cancelling after the last day to sign up. Participants can then cancel until the event starts, or without a time limit if the event has no start.
+- The organizer can always cancel a signup.
 
-## Väntelista
+## Waiting list
 
-- Ordningen bestäms av när anmälan gjordes.
-- När en plats blir ledig (vid avbokning, ändrat antal eller utökat max) flyttas den som står först upp automatiskt, så länge personen ryms, och får ett mejl.
-- Om platserna räknas via antal-fältet och den som står först inte ryms, prövas nästa person i ordningen.
-- En bekräftad deltagare som vill öka sitt antal får det bara om platserna räcker. Annars visas ett fel, och deltagaren behåller sin plats.
-- En anmälan får inte vara större än eventets totala antal platser.
-- Om arrangören minskar antalet platser avbokas ingen. Nya anmälningar hamnar då på väntelistan.
-- Varje e-postadress kan bara ha en aktiv anmälan per event.
+- The order is decided by when the signup was made.
+- When a place becomes free (through a cancellation, a smaller number of people or more places), the first person in line is moved up automatically, as long as they fit, and receives an email.
+- If places are counted from the number question and the first person in line does not fit, the next person in order is tried.
+- A confirmed participant who wants to increase their number only gets it if there are enough places. Otherwise an error is shown and the participant keeps their place.
+- A signup cannot be larger than the event's total number of places.
+- If the organizer reduces the number of places, nobody is cancelled. New signups then go on the waiting list.
+- Each email address can only have one active signup per event.
 
-## Admin för arrangör
+## Organizer administration
 
-- Lista över egna event med antal anmälda, antal på väntelistan och antal lediga platser
-- Anmälningslista per event, där arrangören kan avboka enskilda anmälningar (deltagaren får ett mejl) och radera avbokade anmälningar
-- Excel-export (`.xlsx`) med en rad per anmälan och en kolumn per fråga, plus kolumnerna status (bekräftad/väntelista), platser och tidpunkt för anmälan. Bekräftade listas först, sedan väntelistan i ordning. Avbokade tas inte med. Svar som ser ut som formler sparas som text.
+- List of the organizer's events with places taken, the number on the waiting list and whether signups are open
+- Signup list per event, where the organizer can cancel individual signups (the participant receives an email) and delete cancelled signups
+- Excel export (`.xlsx`) with one row per signup and one column per question, plus columns for status (confirmed/waiting list), places and when the signup was made. Confirmed signups are listed first, then the waiting list in order. Cancelled signups are left out. Answers that look like formulas are stored as text.
 
-## Bakgrundsjobb (scheduler)
+## Background jobs (scheduler)
 
-- När anmälan stänger (vid sista anmälningsdag eller vid starten, det som kommer först) mejlas Excel-filen automatiskt till arrangören, en gång per event. Event som stängde för mer än två dagar sedan hoppas över.
-- Daglig sammanfattning kl. 07 till de arrangörer som har valt det: ett mejl per arrangör med nya anmälningar och avbokningar sedan förra sammanfattningen. Inget mejl skickas om inget har hänt.
-- Radering av anmälningar för event som slutade för mer än X dagar sedan
-- Rensning av utgångna magic link-token
+- Every 15 minutes: when signups close (at the last day to sign up or at the start, whichever comes first), the Excel file is emailed automatically to the organizer, once per event. Events that closed more than two days ago are skipped.
+- 07:00: a daily summary to organizers who chose it: one email per organizer with new signups and cancellations since the previous summary. No email is sent if nothing happened.
+- 03:00: signups are deleted when the event's retention period has passed, counted from the end, the start or the last day to sign up, in that order.
+- 03:30: expired magic link tokens are removed.
 
-## Utanför omfånget
+## Out of scope
 
-- Betalningar
-- Röstning om datum (som Doodle)
-- Konton för deltagare
+- Payments
+- Voting on dates (like Doodle)
+- Participant accounts

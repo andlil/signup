@@ -1,6 +1,6 @@
 # signup
 
-A self-hosted web app for signing up to events through a unique link per event. Think of it as a small Google Forms with places, a waiting list and Excel export, running on your own server. The requirements specification is in [SPEC.md](SPEC.md) (in Swedish).
+A self-hosted web app for signing up to events through a unique link per event. Think of it as a small Google Forms with places, a waiting list and Excel export, running on your own server. The requirements specification is in [SPEC.md](SPEC.md).
 
 Built with Laravel 13, Livewire 4 and MariaDB. Runs with Docker Compose. The interface is available in Swedish and English.
 
